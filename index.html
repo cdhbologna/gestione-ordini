@@ -41,6 +41,9 @@ li { margin-bottom:8px; font-size:16px; }
 
 .prodotti-dropdown { display:none; padding-left:10px; overflow-y:auto; max-height:250px; }
 .categoria-box.active { border:2px solid #3498db; background-color: #eaf3ff; }
+
+#altroInput { display: flex; margin-bottom: 10px; }
+#altroInput input, #altroInput button { padding: 8px; margin: 5px; }
 </style>
 </head>
 <body>
@@ -86,30 +89,16 @@ li { margin-bottom:8px; font-size:16px; }
       <button class="prodotto" onclick="aggiungiProdotto('Tacchino tonnato',15)">Tacchino tonnato €15</button>
     </div>
 
-    <!-- CROCCANTELLA -->
-    <div class="categoria-box croccantella" onclick="toggleProdotti('croccantellaProdotti', this)">CROCCANTELLA</div>
-    <div id="croccantellaProdotti" class="prodotti-dropdown">
-      <button class="prodotto" onclick="aggiungiProdotto('Margherita',10)">Margherita €10</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Parma',14)">Parma €14</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Bolognese',13)">Bolognese €13</button>
-    </div>
-
-    <!-- BEVANDE -->
-    <div class="categoria-box bevande" onclick="toggleProdotti('bevandeProdotti', this)">BEVANDE</div>
-    <div id="bevandeProdotti" class="prodotti-dropdown">
-      <button class="prodotto" onclick="aggiungiProdotto('Acqua (0.5)',1.5)">Acqua (0.5L) €1.50</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Acqua (0.75)',3)">Acqua (0.75L) €3</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Vino della casa (calice)',5)">Vino della casa (calice) €5</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Soft drink',4)">Soft drink €4</button>
-    </div>
-
-    <!-- ALTRO -->
+    <!-- ALTRO (aggiungi prodotto temporaneo) -->
     <div class="categoria-box altro" onclick="toggleProdotti('altroProdotti', this)">ALTRO</div>
     <div id="altroProdotti" class="prodotti-dropdown">
-      <button class="prodotto" onclick="aggiungiProdotto('Pizza al prosciutto crudo',13)">Pizza al prosciutto crudo €13</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Piada con squacquerone',10.50)">Piada con squacquerone €10.50</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Antipasto misto',18)">Antipasto misto €18.00</button>
+      <div id="altroInput">
+        <input type="text" id="altroNome" placeholder="Nome Prodotto" />
+        <input type="number" id="altroPrezzo" placeholder="Prezzo" />
+        <button onclick="aggiungiProdottoAltro()">Aggiungi</button>
+      </div>
     </div>
+
   </div>
 
   <!-- Riquadro basso: Tavoli e ordini -->
@@ -131,8 +120,8 @@ function toggleProdotti(prodottiId, elemento) {
 
 function selezionaTavolo() {
   let num = document.getElementById('numeroTavolo').value;
-  if(!num) return alert('Inserisci numero tavolo');
-  if(!tavoli[num]) tavoli[num] = { ordine: {} };
+  if (!num) return alert('Inserisci numero tavolo');
+  if (!tavoli[num]) tavoli[num] = { ordine: {} };
   tavoloSelezionato = num;
   renderTavoli();
 }
@@ -143,6 +132,15 @@ function aggiungiProdotto(nome, prezzo) {
   if (ord[nome]) ord[nome].q++;
   else ord[nome] = { p: prezzo, q: 1 };
   renderTavoli();
+}
+
+function aggiungiProdottoAltro() {
+  const nome = document.getElementById('altroNome').value;
+  const prezzo = parseFloat(document.getElementById('altroPrezzo').value);
+  if (!nome || isNaN(prezzo)) return alert('Inserisci un nome e un prezzo validi');
+  aggiungiProdotto(nome, prezzo);
+  document.getElementById('altroNome').value = '';
+  document.getElementById('altroPrezzo').value = '';
 }
 
 function rimuoviProdotto(tav, prod) {
@@ -192,10 +190,6 @@ function renderTavoli() {
 
 function chiusuraGiornaliera() {
   if (Object.keys(tavoli).length === 0) return alert('Nessun tavolo da esportare');
-  
-  mostraNotifica();
-  showFireworks();
-
   let data = new Date();
   let filename = 'riepilogo_' + data.getFullYear() + '-' + (data.getMonth() + 1) + '-' + data.getDate() + '.txt';
   let contenuto = 'Riepilogo giornaliero ' + data.toLocaleDateString() + '\n\n';
