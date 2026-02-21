@@ -16,34 +16,28 @@ h1 { text-align:center; margin:10px 0; }
 .tavoli-box-container { background:#fafafa; border-top:3px solid #ddd; }
 
 .categoria-box { padding:10px; margin-bottom:10px; border-radius:8px; color:white; cursor:pointer; font-weight:bold; transition: 0.3s; }
-.categoria-box:hover { background-color: #e1e1e1; }
+.categoria-box:hover { opacity:0.9; }
 
 .main {background:#e74c3c;} 
 .light {background:#27ae60;} 
 .croccantella {background:#c0392b;} 
 .bevande {background:#2980b9;} 
-.vini {background:#b71540;}
-.altro {background:#8e44ad;} /* Colore personalizzato per la categoria ALTRO */
+.altro {background:#8e44ad;} 
 
 .prodotto { padding:15px; margin:5px 0; border:none; border-radius:10px; width:100%; cursor:pointer; background:#3498db; color:white; }
 .prodotto:active { transform:scale(0.98); }
 
-button.quantita-btn { padding:5px 10px; margin-left:6px; font-size:14px; }
-button.azione { background:green; color:white; margin-top:10px; padding:10px; width:100%; border:none; border-radius:8px; cursor:pointer; }
-button.rimuovi { background:red; color:white; margin-top:5px; padding:8px; width:100%; border:none; border-radius:8px; cursor:pointer; }
+.prodotti-dropdown { display:none; padding-left:10px; overflow-y:auto; max-height:250px; }
+.categoria-box.active { border:2px solid #3498db; background-color:#eaf3ff; }
 
-#totale { font-weight:bold; font-size:20px; margin-top:10px; }
-ul { padding-left:20px; }
-li { margin-bottom:8px; font-size:16px; }
+#altroInput { display:flex; margin-bottom:10px; }
+#altroInput input, #altroInput button { padding:8px; margin:5px; }
 
 .tavolo-box { padding:8px; margin-bottom:5px; border:1px solid #ccc; border-radius:5px; background:white; display:flex; flex-direction:column; }
-.tavolo-box button { padding:3px 6px; font-size:12px; margin-left:4px; }
-
-.prodotti-dropdown { display:none; padding-left:10px; overflow-y:auto; max-height:250px; }
-.categoria-box.active { border:2px solid #3498db; background-color: #eaf3ff; }
-
-#altroInput { display: flex; margin-bottom: 10px; }
-#altroInput input, #altroInput button { padding: 8px; margin: 5px; }
+.tavolo-header { display:flex; justify-content: space-between; align-items:center; cursor:pointer; }
+.btnElimina { background:red; color:white; border:none; border-radius:50%; width:30px; height:30px; cursor:pointer; font-weight:bold; display:flex; justify-content:center; align-items:center; }
+ul { padding-left:20px; }
+li { margin-bottom:8px; font-size:16px; }
 </style>
 </head>
 <body>
@@ -51,9 +45,9 @@ li { margin-bottom:8px; font-size:16px; }
 <h1>Gestione Ordini Hotel</h1>
 
 <div class="header">
-<strong>Numero Tavolo:</strong>
-<input type="number" id="numeroTavolo" style="font-size:16px; padding:5px; width:80px;">
-<button onclick="selezionaTavolo()">Apri Tavolo</button>
+  <strong>Numero Tavolo:</strong>
+  <input type="number" id="numeroTavolo" style="font-size:16px; padding:5px; width:80px;">
+  <button onclick="selezionaTavolo()">Apri Tavolo</button>
 </div>
 
 <div class="container riga">
@@ -106,127 +100,132 @@ li { margin-bottom:8px; font-size:16px; }
       <button class="prodotto" onclick="aggiungiProdotto('Soft drink',4)">Soft drink €4.00</button>
     </div>
 
-    <!-- ALTRO (aggiungi prodotto temporaneo) -->
+    <!-- ALTRO -->
     <div class="categoria-box altro" onclick="toggleProdotti('altroProdotti', this)">ALTRO</div>
     <div id="altroProdotti" class="prodotti-dropdown">
       <div id="altroInput">
-        <input type="text" id="altroNome" placeholder="Nome Prodotto" />
-        <input type="number" id="altroPrezzo" placeholder="Prezzo" />
+        <input type="text" id="altroNome" placeholder="Nome Prodotto">
+        <input type="number" id="altroPrezzo" placeholder="Prezzo">
         <button onclick="aggiungiProdottoAltro()">Aggiungi</button>
       </div>
     </div>
   </div>
 
-<!-- Riquadro basso: Tavoli e ordini -->
-<div class="tavoli-box-container" id="tavoliContainer">
-  <h3>Lista Tavoli</h3>
+  <!-- Riquadro basso: Tavoli e ordini -->
+  <div class="tavoli-box-container" id="tavoliContainer">
+    <h3>Lista Tavoli</h3>
+  </div>
+
 </div>
 
 <script>
-// Variabili per la gestione degli ordini
+// Gestione categorie a tendina
+function toggleProdotti(id, element){
+  let prodotti = document.getElementById(id);
+  let allCategorie = document.querySelectorAll('.categoria-box');
+  for (let cat of allCategorie){
+    if(cat !== element){
+      cat.classList.remove('active');
+      let otherProdotti = document.getElementById(cat.textContent.trim() + 'Prodotti');
+      if(otherProdotti) otherProdotti.style.display = 'none';
+    }
+  }
+  if(prodotti.style.display === 'none' || prodotti.style.display === ''){
+    element.classList.add('active');
+    prodotti.style.display = 'block';
+  } else {
+    element.classList.remove('active');
+    prodotti.style.display = 'none';
+  }
+}
+
+// Gestione ordini
 let tavoli = {};
 let tavoloSelezionato = null;
 
 function selezionaTavolo() {
   let num = document.getElementById('numeroTavolo').value;
-  if (!num) return alert('Inserisci numero tavolo');
-  if (!tavoli[num]) tavoli[num] = { ordine: {} };
+  if(!num) return alert('Inserisci numero tavolo');
+  if(!tavoli[num]) tavoli[num] = { ordine:{} };
   tavoloSelezionato = num;
   renderTavoli();
 }
 
-function aggiungiProdotto(nome, prezzo) {
-  if (!tavoloSelezionato) return alert('Seleziona un tavolo prima');
+function aggiungiProdotto(nome, prezzo){
+  if(!tavoloSelezionato) return alert('Seleziona un tavolo prima');
   let ord = tavoli[tavoloSelezionato].ordine;
-  if (ord[nome]) ord[nome].q++;
-  else ord[nome] = { p: prezzo, q: 1 };
+  if(ord[nome]) ord[nome].q++;
+  else ord[nome] = {p:prezzo,q:1};
   renderTavoli();
 }
 
-function rimuoviProdotto(tav, prod) {
-  if (tavoli[tav].ordine[prod]) {
+function aggiungiProdottoAltro(){
+  const nome = document.getElementById('altroNome').value;
+  const prezzo = parseFloat(document.getElementById('altroPrezzo').value);
+  if(!nome || isNaN(prezzo)) return alert('Inserisci un nome e un prezzo validi');
+  aggiungiProdotto(nome, prezzo);
+  document.getElementById('altroNome').value = '';
+  document.getElementById('altroPrezzo').value = '';
+}
+
+function rimuoviProdotto(tav, prod){
+  if(tavoli[tav].ordine[prod]){
     tavoli[tav].ordine[prod].q--;
-    if (tavoli[tav].ordine[prod].q <= 0) delete tavoli[tav].ordine[prod];
+    if(tavoli[tav].ordine[prod].q <= 0) delete tavoli[tav].ordine[prod];
   }
   renderTavoli();
 }
 
-function eliminaTavolo(tav) {
-  if (confirm("Eliminare definitivamente il tavolo " + tav + "?")) {
+function eliminaTavolo(tav){
+  if(confirm("Eliminare definitivamente il tavolo " + tav + "?")){
     delete tavoli[tav];
-    if (tavoloSelezionato === tav) tavoloSelezionato = null;
+    if(tavoloSelezionato === tav) tavoloSelezionato = null;
     renderTavoli();
   }
 }
 
-function renderTavoli() {
+function renderTavoli(){
   let container = document.getElementById('tavoliContainer');
   container.innerHTML = '<h3>Lista Tavoli</h3>';
-
-  for (let t in tavoli) {
+  
+  for(let t in tavoli){
     let box = document.createElement('div');
     box.className = 'tavolo-box';
-    box.style.cursor = 'pointer';
-    box.style.marginBottom = '10px';
-    box.style.padding = '5px';
-    box.style.border = '1px solid #ccc';
-    box.style.backgroundColor = '#f0f0f0';
-    box.style.display = 'flex';
-    box.style.justifyContent = 'space-between';
-    box.style.alignItems = 'center';  // Centra verticalmente
-
-    // Titolo tavolo cliccabile
+    
+    // Header con titolo tavolo e pulsante elimina
     let header = document.createElement('div');
-    header.innerHTML = '<strong>Tavolo ' + t + '</strong>';
-    header.onclick = () => {
+    header.className = 'tavolo-header';
+    let titolo = document.createElement('strong');
+    titolo.textContent = 'Tavolo ' + t;
+    titolo.onclick = () => {
       lista.style.display = lista.style.display === 'none' ? 'block' : 'none';
-      box.style.border = lista.style.display === 'none' ? '1px solid #ccc' : '2px solid #3498db';
-      box.style.backgroundColor = lista.style.display === 'none' ? '#f0f0f0' : '#eaf3ff';
     };
+    header.appendChild(titolo);
+    
+    let btnDel = document.createElement('button');
+    btnDel.className = 'btnElimina';
+    btnDel.textContent = 'X';
+    btnDel.onclick = () => eliminaTavolo(t);
+    header.appendChild(btnDel);
+    
     box.appendChild(header);
 
     // Lista prodotti
     let lista = document.createElement('ul');
     lista.style.display = 'none';
-    for (let prod in tavoli[t].ordine) {
+    for(let prod in tavoli[t].ordine){
       let o = tavoli[t].ordine[prod];
       let li = document.createElement('li');
-      li.innerHTML = prod + ' x' + o.q + ' €' + (o.p * o.q).toFixed(2) + 
-                    ' <button onclick="rimuoviProdotto(\'' + t + '\',\'' + prod + '\')">-</button>';
+      li.innerHTML = prod + ' x' + o.q + ' €' + (o.p*o.q).toFixed(2) + 
+                     ' <button onclick="rimuoviProdotto(\'' + t + '\',\'' + prod + '\')">-</button>';
       lista.appendChild(li);
     }
     box.appendChild(lista);
-
-    // Bottone elimina tavolo (quadrato a destra)
-    let btnDel = document.createElement('button');
-    btnDel.textContent = 'X';  // Impostiamo un 'X' per fare un quadrato
-    btnDel.className = 'btnElimina'; // Applichiamo la classe CSS per il pulsante
-    btnDel.onclick = () => eliminaTavolo(t);
-    box.appendChild(btnDel);
 
     container.appendChild(box);
   }
 }
 </script>
 
-<style>
-  /* Aggiungi lo stile per il pulsante elimina */
-  .btnElimina {
-    padding: 5px 10px;
-    background-color: red;
-    color: white;
-    border: none;
-    border-radius: 50%;  /* Rende il pulsante un cerchio */
-    cursor: pointer;
-    font-size: 16px;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .btnElimina:hover {
-    background-color: darkred; /* Cambia il colore al passaggio del mouse */
-  }
-</style>
+</body>
+</html>
