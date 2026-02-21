@@ -5,30 +5,41 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gestione Ordini Hotel</title>
 <style>
-body{ font-family: Arial, sans-serif; margin:0; background:#f2f2f2; }
-h1{ text-align:center; margin:10px 0; }
-.header{ padding:10px; text-align:center; background:white; }
-.container{ display:flex; flex-direction:column; height:calc(100vh - 60px); }
-.riga{ display:flex; flex:1; }
-.items, .tavoli-box-container{ flex:1; padding:10px; overflow-y:auto; -webkit-overflow-scrolling: touch; }
-.items{ background:white; }
-.tavoli-box-container{ background:#fafafa; border-top:3px solid #ddd; }
-.categoria-box{ padding:10px; margin-bottom:10px; border-radius:8px; color:white; cursor:pointer; font-weight:bold; }
-.main{background:#e74c3c;} .light{background:#27ae60;} .croccantella{background:#c0392b;} .bevande{background:#2980b9;} .vini{background:#b71540;}
+body { font-family: Arial, sans-serif; margin:0; background:#f2f2f2; }
+h1 { text-align:center; margin:10px 0; }
+.header { padding:10px; text-align:center; background:white; }
+.container { display:flex; flex-direction:column; height:calc(100vh - 60px); }
+.riga { display:flex; flex:1; flex-direction:column; }
 
-.prodotto{ padding:15px; margin:5px 0; border:none; border-radius:10px; width:100%; cursor:pointer; background:#3498db; color:white; }
-.prodotto:active{ transform:scale(0.98); }
+.items, .tavoli-box-container { flex:1; padding:10px; overflow-y:auto; -webkit-overflow-scrolling: touch; }
+.items { background:white; }
+.tavoli-box-container { background:#fafafa; border-top:3px solid #ddd; }
 
-button.quantita-btn{ padding:5px 10px; margin-left:6px; font-size:14px; }
-button.azione{ background:green; color:white; margin-top:10px; padding:10px; width:100%; border:none; border-radius:8px; cursor:pointer; }
-button.rimuovi{ background:red; color:white; margin-top:5px; padding:8px; width:100%; border:none; border-radius:8px; cursor:pointer; }
+.categoria-box { padding:10px; margin-bottom:10px; border-radius:8px; color:white; cursor:pointer; font-weight:bold; transition: 0.3s; }
+.categoria-box:hover { background-color: #e1e1e1; }
 
-#totale{ font-weight:bold; font-size:20px; margin-top:10px; }
-ul{ padding-left:20px; }
-li{ margin-bottom:8px; font-size:16px; }
+.main {background:#e74c3c;} 
+.light {background:#27ae60;} 
+.croccantella {background:#c0392b;} 
+.bevande {background:#2980b9;} 
+.vini {background:#b71540;}
 
-.tavolo-box{ padding:8px; margin-bottom:5px; border:1px solid #ccc; border-radius:5px; background:white; display:flex; justify-content:space-between; align-items:center; }
-.tavolo-box button{ padding:3px 6px; font-size:12px; margin-left:4px; }
+.prodotto { padding:15px; margin:5px 0; border:none; border-radius:10px; width:100%; cursor:pointer; background:#3498db; color:white; }
+.prodotto:active { transform:scale(0.98); }
+
+button.quantita-btn { padding:5px 10px; margin-left:6px; font-size:14px; }
+button.azione { background:green; color:white; margin-top:10px; padding:10px; width:100%; border:none; border-radius:8px; cursor:pointer; }
+button.rimuovi { background:red; color:white; margin-top:5px; padding:8px; width:100%; border:none; border-radius:8px; cursor:pointer; }
+
+#totale { font-weight:bold; font-size:20px; margin-top:10px; }
+ul { padding-left:20px; }
+li { margin-bottom:8px; font-size:16px; }
+
+.tavolo-box { padding:8px; margin-bottom:5px; border:1px solid #ccc; border-radius:5px; background:white; display:flex; flex-direction:column; }
+.tavolo-box button { padding:3px 6px; font-size:12px; margin-left:4px; }
+
+.prodotti-dropdown { display:none; padding-left:10px; overflow-y:auto; max-height:250px; }
+.categoria-box.active { border:2px solid #3498db; background-color: #eaf3ff; }
 </style>
 </head>
 <body>
@@ -41,69 +52,84 @@ li{ margin-bottom:8px; font-size:16px; }
 <button onclick="selezionaTavolo()">Apri Tavolo</button>
 </div>
 
-<!-- Riquadro alto: Items -->
-<div class="items" id="itemsContainer">
-  <h3>BISTRO</h3>
+<div class="container riga">
 
-  <!-- MAIN -->
-  <div class="categoria-box main">MAIN</div>
-  <div style="padding-left:10px;">
-    <button class="prodotto" onclick="aggiungiProdotto('Tagliata di manzo 200g',18)">Tagliata di manzo 200g €18</button>
-    <button class="prodotto" onclick="aggiungiProdotto('Hamburger Bistro con patatine',12)">Hamburger Bistro €12</button>
-    <button class="prodotto" onclick="aggiungiProdotto('Insalata di pollo',10)">Insalata di pollo €10</button>
-    <button class="prodotto" onclick="aggiungiProdotto('Filetto di salmone alla griglia',20)">Filetto di salmone €20</button>
+  <!-- Riquadro alto: Items -->
+  <div class="items" id="itemsContainer">
+    <h3>BISTRO</h3>
+
+    <!-- MAIN -->
+    <div class="categoria-box main" onclick="toggleProdotti('mainProdotti', this)">MAIN</div>
+    <div id="mainProdotti" class="prodotti-dropdown">
+      <button class="prodotto" onclick="aggiungiProdotto('Tagliata di manzo 200g',18)">Tagliata di manzo 200g €18</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Hamburger Bistro con patatine',12)">Hamburger €12</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Insalata di pollo',10)">Insalata di pollo €10</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Filetto di salmone alla griglia',20)">Filetto di salmone €20</button>
+    </div>
+
+    <!-- LIGHT & TASTY -->
+    <div class="categoria-box light" onclick="toggleProdotti('lightProdotti', this)">LIGHT & TASTY</div>
+    <div id="lightProdotti" class="prodotti-dropdown">
+      <button class="prodotto" onclick="aggiungiProdotto('Insalata mista',8)">Insalata mista €8</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Zuppa del giorno',7)">Zuppa €7</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Poke bowl vegetariano',12)">Poke bowl €12</button>
+    </div>
+
+    <!-- CROCCANTELLA -->
+    <div class="categoria-box croccantella" onclick="toggleProdotti('croccantellaProdotti', this)">CROCCANTELLA</div>
+    <div id="croccantellaProdotti" class="prodotti-dropdown">
+      <button class="prodotto" onclick="aggiungiProdotto('Patatine fritte',5)">Patatine €5</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Onion rings',6)">Onion rings €6</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Nachos con formaggio',7)">Nachos €7</button>
+    </div>
+
+    <!-- BEVANDE -->
+    <div class="categoria-box bevande" onclick="toggleProdotti('bevandeProdotti', this)">BEVANDE</div>
+    <div id="bevandeProdotti" class="prodotti-dropdown">
+      <button class="prodotto" onclick="aggiungiProdotto('Acqua naturale 500 ml',1.5)">Acqua €1.50</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Soft drink 330 ml',4)">Soft drink €4</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Caffè espresso',1.5)">Caffè €1.50</button>
+    </div>
+
+    <!-- VINI -->
+    <div class="categoria-box vini" onclick="toggleProdotti('viniProdotti', this)">VINI</div>
+    <div id="viniProdotti" class="prodotti-dropdown">
+      <button class="prodotto" onclick="aggiungiProdotto('Bianco della casa 125ml',5)">Bianco €5</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Rosso della casa 125ml',5)">Rosso €5</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Prosecco 125ml',6)">Prosecco €6</button>
+    </div>
+
   </div>
 
-  <!-- LIGHT & TASTY -->
-  <div class="categoria-box light">LIGHT & TASTY</div>
-  <div style="padding-left:10px;">
-    <button class="prodotto" onclick="aggiungiProdotto('Insalata mista',8)">Insalata mista €8</button>
-    <button class="prodotto" onclick="aggiungiProdotto('Zuppa del giorno',7)">Zuppa del giorno €7</button>
-    <button class="prodotto" onclick="aggiungiProdotto('Poke bowl vegetariano',12)">Poke bowl €12</button>
+  <!-- Riquadro basso: Tavoli e ordini -->
+  <div class="tavoli-box-container" id="tavoliContainer">
+    <h3>Lista Tavoli</h3>
   </div>
 
-  <!-- CROCCANTELLA -->
-  <div class="categoria-box croccantella">CROCCANTELLA</div>
-  <div style="padding-left:10px;">
-    <button class="prodotto" onclick="aggiungiProdotto('Patatine fritte',5)">Patatine €5</button>
-    <button class="prodotto" onclick="aggiungiProdotto('Onion rings',6)">Onion rings €6</button>
-    <button class="prodotto" onclick="aggiungiProdotto('Nachos con formaggio',7)">Nachos €7</button>
-  </div>
+</div>
 
-  <!-- BEVANDE -->
-  <div class="categoria-box bevande">BEVANDE</div>
-  <div style="padding-left:10px;">
-    <button class="prodotto" onclick="aggiungiProdotto('Acqua naturale 500 ml',1.5)">Acqua €1.50</button>
-    <button class="prodotto" onclick="aggiungiProdotto('Soft drink 330 ml',4)">Soft drink €4</button>
-    <button class="prodotto" onclick="aggiungiProdotto('Caffè espresso',1.5)">Caffè €1.50</button>
-  </div>
-
-  <!-- VINI -->
-  <div class="categoria-box vini">VINI</div>
-  <div style="padding-left:10px;">
-    <button class="prodotto" onclick="aggiungiProdotto('Bianco della casa 125ml',5)">Bianco €5</button>
-    <button class="prodotto" onclick="aggiungiProdotto('Rosso della casa 125ml',5)">Rosso €5</button>
-    <button class="prodotto" onclick="aggiungiProdotto('Prosecco 125ml',6)">Prosecco €6</button>
-  </div>
+<div style="padding:10px;">
+  <button class="azione" onclick="chiusuraGiornaliera()">CHIUSURA GIORNALIERA</button>
 </div>
 
 <script>
 let tavoli = {};
 let tavoloSelezionato = null;
+let statoTavoli = {}; // memorizza se il box è aperto o chiuso
 
-function mostraProdotti(categoria){
-  // Chiudi tutte le categorie
-  const categories = ['bistro','main','light','croccantella','bevande','vini'];
-  categories.forEach(cat => {
-    let d = document.getElementById(cat+'Prodotti');
-    if(d) d.style.display='none';
-  });
-
-  // Apri quella cliccata
-  let div = document.getElementById(categoria+'Prodotti');
-  if(div) div.style.display='block';
+// Mostra/nasconde dropdown prodotti e gestisce lo stato attivo
+function toggleProdotti(id, element){
+  let div = document.getElementById(id);
+  div.style.display = div.style.display === 'block' ? 'none' : 'block';
+  
+  // Aggiunge/rimuove la classe "active" per il bordo colorato
+  let allCategoria = document.querySelectorAll('.categoria-box');
+  allCategoria.forEach(cat => cat.classList.remove('active'));
+  
+  element.classList.add('active');
 }
 
+// Seleziona tavolo
 function selezionaTavolo(){
   let num = document.getElementById('numeroTavolo').value;
   if(!num) return alert('Inserisci numero tavolo');
@@ -112,6 +138,7 @@ function selezionaTavolo(){
   renderTavoli();
 }
 
+// Aggiunge prodotto
 function aggiungiProdotto(nome, prezzo){
   if(!tavoloSelezionato) return alert('Seleziona un tavolo prima');
   let ord = tavoli[tavoloSelezionato].ordine;
@@ -120,6 +147,7 @@ function aggiungiProdotto(nome, prezzo){
   renderTavoli();
 }
 
+// Rimuove singolo prodotto
 function rimuoviProdotto(tav, prod){
   if(tavoli[tav].ordine[prod]){
     tavoli[tav].ordine[prod].q--;
@@ -128,6 +156,7 @@ function rimuoviProdotto(tav, prod){
   renderTavoli();
 }
 
+// Elimina tavolo
 function eliminaTavolo(tav){
   if(confirm("Eliminare definitivamente il tavolo "+tav+"?")){
     delete tavoli[tav];
@@ -136,8 +165,7 @@ function eliminaTavolo(tav){
   }
 }
 
-let statoTavoli = {}; // memorizza se il box è aperto o chiuso
-
+// Render Tavoli
 function renderTavoli(){
   let container = document.getElementById('tavoliContainer');
   container.innerHTML='<h3>Lista Tavoli</h3>';
@@ -185,6 +213,7 @@ function renderTavoli(){
   }
 }
 
+// Chiusura giornaliera
 function chiusuraGiornaliera(){
   if(Object.keys(tavoli).length===0) return alert('Nessun tavolo da esportare');
   let data = new Date();
@@ -206,11 +235,5 @@ function chiusuraGiornaliera(){
 }
 </script>
 
-<div style="padding:10px;">
-  <button class="azione" onclick="chiusuraGiornaliera()">CHIUSURA GIORNALIERA</button>
-</div>
-
 </body>
 </html>
-
-
