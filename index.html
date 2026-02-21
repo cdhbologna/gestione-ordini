@@ -41,64 +41,49 @@ li{ margin-bottom:8px; font-size:16px; }
 <button onclick="selezionaTavolo()">Apri Tavolo</button>
 </div>
 
-<div class="container riga">
-  <!-- Riquadro alto: Items -->
-  <div class="items" id="itemsContainer">
+<!-- Riquadro alto: Items -->
+<div class="items" id="itemsContainer">
+  <h3>BISTRO</h3>
 
-    <!-- BISTRO -->
-    <div class="categoria-box" onclick="mostraProdotti('bistro')">BISTRO</div>
-    <div id="bistroProdotti" style="display:none; padding-left:10px;">
+  <!-- MAIN -->
+  <div class="categoria-box main">MAIN</div>
+  <div style="padding-left:10px;">
+    <button class="prodotto" onclick="aggiungiProdotto('Tagliata di manzo 200g',18)">Tagliata di manzo 200g €18</button>
+    <button class="prodotto" onclick="aggiungiProdotto('Hamburger Bistro con patatine',12)">Hamburger Bistro €12</button>
+    <button class="prodotto" onclick="aggiungiProdotto('Insalata di pollo',10)">Insalata di pollo €10</button>
+    <button class="prodotto" onclick="aggiungiProdotto('Filetto di salmone alla griglia',20)">Filetto di salmone €20</button>
+  </div>
 
-      <!-- MAIN -->
-      <div class="categoria-box main" onclick="mostraProdotti('main')">MAIN</div>
-      <div id="mainProdotti" style="display:none; padding-left:10px;">
-        <button class="prodotto" onclick="aggiungiProdotto('Tagliata di manzo 200g',18)">Tagliata di manzo 200g €18.00</button>
-        <button class="prodotto" onclick="aggiungiProdotto('Hamburger Bistro con patatine',12)">Hamburger Bistro con patatine €12.00</button>
-        <button class="prodotto" onclick="aggiungiProdotto('Insalata di pollo',10)">Insalata di pollo €10.00</button>
-        <button class="prodotto" onclick="aggiungiProdotto('Filetto di salmone alla griglia',20)">Filetto di salmone alla griglia €20.00</button>
-      </div>
+  <!-- LIGHT & TASTY -->
+  <div class="categoria-box light">LIGHT & TASTY</div>
+  <div style="padding-left:10px;">
+    <button class="prodotto" onclick="aggiungiProdotto('Insalata mista',8)">Insalata mista €8</button>
+    <button class="prodotto" onclick="aggiungiProdotto('Zuppa del giorno',7)">Zuppa del giorno €7</button>
+    <button class="prodotto" onclick="aggiungiProdotto('Poke bowl vegetariano',12)">Poke bowl €12</button>
+  </div>
 
-      <!-- LIGHT & TASTY -->
-      <div class="categoria-box light" onclick="mostraProdotti('light')">LIGHT & TASTY</div>
-      <div id="lightProdotti" style="display:none; padding-left:10px;">
-        <button class="prodotto" onclick="aggiungiProdotto('Insalata mista',8)">Insalata mista €8.00</button>
-        <button class="prodotto" onclick="aggiungiProdotto('Zuppa del giorno',7)">Zuppa del giorno €7.00</button>
-        <button class="prodotto" onclick="aggiungiProdotto('Poke bowl vegetariano',12)">Poke bowl vegetariano €12.00</button>
-      </div>
+  <!-- CROCCANTELLA -->
+  <div class="categoria-box croccantella">CROCCANTELLA</div>
+  <div style="padding-left:10px;">
+    <button class="prodotto" onclick="aggiungiProdotto('Patatine fritte',5)">Patatine €5</button>
+    <button class="prodotto" onclick="aggiungiProdotto('Onion rings',6)">Onion rings €6</button>
+    <button class="prodotto" onclick="aggiungiProdotto('Nachos con formaggio',7)">Nachos €7</button>
+  </div>
 
-      <!-- CROCCANTELLA -->
-      <div class="categoria-box croccantella" onclick="mostraProdotti('croccantella')">CROCCANTELLA</div>
-      <div id="croccantellaProdotti" style="display:none; padding-left:10px;">
-        <button class="prodotto" onclick="aggiungiProdotto('Patatine fritte',5)">Patatine fritte €5.00</button>
-        <button class="prodotto" onclick="aggiungiProdotto('Onion rings',6)">Onion rings €6.00</button>
-        <button class="prodotto" onclick="aggiungiProdotto('Nachos con formaggio',7)">Nachos con formaggio €7.00</button>
-      </div>
+  <!-- BEVANDE -->
+  <div class="categoria-box bevande">BEVANDE</div>
+  <div style="padding-left:10px;">
+    <button class="prodotto" onclick="aggiungiProdotto('Acqua naturale 500 ml',1.5)">Acqua €1.50</button>
+    <button class="prodotto" onclick="aggiungiProdotto('Soft drink 330 ml',4)">Soft drink €4</button>
+    <button class="prodotto" onclick="aggiungiProdotto('Caffè espresso',1.5)">Caffè €1.50</button>
+  </div>
 
-      <!-- BEVANDE -->
-      <div class="categoria-box bevande" onclick="mostraProdotti('bevande')">BEVANDE</div>
-      <div id="bevandeProdotti" style="display:none; padding-left:10px;">
-        <button class="prodotto" onclick="aggiungiProdotto('Acqua naturale 500 ml',1.5)">Acqua naturale 500 ml €1.50</button>
-        <button class="prodotto" onclick="aggiungiProdotto('Acqua frizzante 750 ml',3)">Acqua frizzante 750 ml €3.00</button>
-        <button class="prodotto" onclick="aggiungiProdotto('Soft drink 330 ml',4)">Soft drink 330 ml €4.00</button>
-        <button class="prodotto" onclick="aggiungiProdotto('Vino della casa 125 ml',5)">Vino della casa 125 ml €5.00</button>
-        <button class="prodotto" onclick="aggiungiProdotto('Caffè espresso',1.5)">Caffè espresso €1.50</button>
-      </div>
-
-      <!-- VINI -->
-      <div class="categoria-box vini" onclick="mostraProdotti('vini')">VINI</div>
-      <div id="viniProdotti" style="display:none; padding-left:10px;">
-        <button class="prodotto" onclick="aggiungiProdotto('Bianco della casa 125ml',5)">Bianco della casa 125ml €5.00</button>
-        <button class="prodotto" onclick="aggiungiProdotto('Rosso della casa 125ml',5)">Rosso della casa 125ml €5.00</button>
-        <button class="prodotto" onclick="aggiungiProdotto('Prosecco 125ml',6)">Prosecco 125ml €6.00</button>
-        <button class="prodotto" onclick="aggiungiProdotto('Chianti DOCG 125ml',6)">Chianti DOCG 125ml €6.00</button>
-      </div>
-
-    </div>
-    <!-- FINE BISTRO -->
-
-  <!-- Riquadro basso: Tavoli e ordini -->
-  <div class="tavoli-box-container" id="tavoliContainer">
-    <h3>Lista Tavoli</h3>
+  <!-- VINI -->
+  <div class="categoria-box vini">VINI</div>
+  <div style="padding-left:10px;">
+    <button class="prodotto" onclick="aggiungiProdotto('Bianco della casa 125ml',5)">Bianco €5</button>
+    <button class="prodotto" onclick="aggiungiProdotto('Rosso della casa 125ml',5)">Rosso €5</button>
+    <button class="prodotto" onclick="aggiungiProdotto('Prosecco 125ml',6)">Prosecco €6</button>
   </div>
 </div>
 
@@ -227,4 +212,5 @@ function chiusuraGiornaliera(){
 
 </body>
 </html>
+
 
