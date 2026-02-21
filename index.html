@@ -112,120 +112,146 @@ li { margin-bottom:8px; font-size:16px; }
   </div>
 
   <!-- Riquadro basso: Tavoli e ordini -->
-  <div class="tavoli-box-container" id="tavoliContainer">
-    <h3>Lista Tavoli</h3>
-  </div>
+<div class="tavoli-box-container" id="tavoliContainer">
+  <h3>Lista Tavoli</h3>
+</div>
 
+<!-- Pulsanti azioni -->
+<div style="padding:10px;">
+  <button class="azione" onclick="chiusuraGiornata()">CHIUSURA GIORNALIERA</button>
+  <button class="azione" style="background:#c0392b;" onclick="eliminaTuttiTavoli()">ELIMINA TUTTI I TAVOLI</button>
 </div>
 
 <script>
-// Gestione categorie a tendina
-function toggleProdotti(id, element){
-  let prodotti = document.getElementById(id);
-  let allCategorie = document.querySelectorAll('.categoria-box');
-  for (let cat of allCategorie){
-    if(cat !== element){
-      cat.classList.remove('active');
-      let otherProdotti = document.getElementById(cat.textContent.trim() + 'Prodotti');
-      if(otherProdotti) otherProdotti.style.display = 'none';
-    }
-  }
-  if(prodotti.style.display === 'none' || prodotti.style.display === ''){
-    element.classList.add('active');
-    prodotti.style.display = 'block';
-  } else {
-    element.classList.remove('active');
-    prodotti.style.display = 'none';
-  }
-}
-
-// Gestione ordini
+// Stato dei tavoli aperti/chiusi
 let tavoli = {};
 let tavoloSelezionato = null;
+let statoTavoli = {}; // true = aperto, false = chiuso
 
 function selezionaTavolo() {
   let num = document.getElementById('numeroTavolo').value;
-  if(!num) return alert('Inserisci numero tavolo');
-  if(!tavoli[num]) tavoli[num] = { ordine:{} };
+  if (!num) return alert('Inserisci numero tavolo');
+  if (!tavoli[num]) tavoli[num] = { ordine: {} };
   tavoloSelezionato = num;
   renderTavoli();
 }
 
-function aggiungiProdotto(nome, prezzo){
-  if(!tavoloSelezionato) return alert('Seleziona un tavolo prima');
+function aggiungiProdotto(nome, prezzo) {
+  if (!tavoloSelezionato) return alert('Seleziona un tavolo prima');
   let ord = tavoli[tavoloSelezionato].ordine;
-  if(ord[nome]) ord[nome].q++;
-  else ord[nome] = {p:prezzo,q:1};
+  if (ord[nome]) ord[nome].q++;
+  else ord[nome] = { p: prezzo, q: 1 };
   renderTavoli();
 }
 
-function aggiungiProdottoAltro(){
-  const nome = document.getElementById('altroNome').value;
-  const prezzo = parseFloat(document.getElementById('altroPrezzo').value);
-  if(!nome || isNaN(prezzo)) return alert('Inserisci un nome e un prezzo validi');
-  aggiungiProdotto(nome, prezzo);
-  document.getElementById('altroNome').value = '';
-  document.getElementById('altroPrezzo').value = '';
-}
-
-function rimuoviProdotto(tav, prod){
-  if(tavoli[tav].ordine[prod]){
+function rimuoviProdotto(tav, prod) {
+  if (tavoli[tav].ordine[prod]) {
     tavoli[tav].ordine[prod].q--;
-    if(tavoli[tav].ordine[prod].q <= 0) delete tavoli[tav].ordine[prod];
+    if (tavoli[tav].ordine[prod].q <= 0) delete tavoli[tav].ordine[prod];
   }
   renderTavoli();
 }
 
-function eliminaTavolo(tav){
-  if(confirm("Eliminare definitivamente il tavolo " + tav + "?")){
+function eliminaTavolo(tav) {
+  if (confirm("Eliminare definitivamente il tavolo " + tav + "?")) {
     delete tavoli[tav];
-    if(tavoloSelezionato === tav) tavoloSelezionato = null;
+    if (tavoloSelezionato === tav) tavoloSelezionato = null;
     renderTavoli();
   }
 }
 
-function renderTavoli(){
+function renderTavoli() {
   let container = document.getElementById('tavoliContainer');
   container.innerHTML = '<h3>Lista Tavoli</h3>';
-  
-  for(let t in tavoli){
+
+  for (let t in tavoli) {
+    if (statoTavoli[t] === undefined) statoTavoli[t] = false;
+
     let box = document.createElement('div');
     box.className = 'tavolo-box';
-    
-    // Header con titolo tavolo e pulsante elimina
+    box.style.marginBottom = '10px';
+    box.style.padding = '5px';
+    box.style.border = statoTavoli[t] ? '2px solid #3498db' : '1px solid #ccc';
+    box.style.backgroundColor = statoTavoli[t] ? '#eaf3ff' : '#f0f0f0';
+
+    // Titolo tavolo cliccabile
     let header = document.createElement('div');
-    header.className = 'tavolo-header';
-    let titolo = document.createElement('strong');
-    titolo.textContent = 'Tavolo ' + t;
-    titolo.onclick = () => {
-      lista.style.display = lista.style.display === 'none' ? 'block' : 'none';
+    header.innerHTML = '<strong>Tavolo ' + t + '</strong>';
+    header.style.cursor = 'pointer';
+    header.onclick = () => {
+      statoTavoli[t] = !statoTavoli[t];
+      lista.style.display = statoTavoli[t] ? 'block' : 'none';
+      box.style.border = statoTavoli[t] ? '2px solid #3498db' : '1px solid #ccc';
+      box.style.backgroundColor = statoTavoli[t] ? '#eaf3ff' : '#f0f0f0';
     };
-    header.appendChild(titolo);
-    
-    let btnDel = document.createElement('button');
-    btnDel.className = 'btnElimina';
-    btnDel.textContent = 'X';
-    btnDel.onclick = () => eliminaTavolo(t);
-    header.appendChild(btnDel);
-    
     box.appendChild(header);
 
     // Lista prodotti
     let lista = document.createElement('ul');
-    lista.style.display = 'none';
-    for(let prod in tavoli[t].ordine){
+    lista.style.display = statoTavoli[t] ? 'block' : 'none';
+    for (let prod in tavoli[t].ordine) {
       let o = tavoli[t].ordine[prod];
       let li = document.createElement('li');
-      li.innerHTML = prod + ' x' + o.q + ' €' + (o.p*o.q).toFixed(2) + 
+      li.innerHTML = prod + ' x' + o.q + ' €' + (o.p * o.q).toFixed(2) +
                      ' <button onclick="rimuoviProdotto(\'' + t + '\',\'' + prod + '\')">-</button>';
       lista.appendChild(li);
     }
     box.appendChild(lista);
 
+    // Bottone elimina tavolo singolo (piccolo quadrato a destra)
+    let btnDel = document.createElement('button');
+    btnDel.textContent = '🗑️';
+    btnDel.style.float = 'right';
+    btnDel.style.width = '30px';
+    btnDel.style.height = '30px';
+    btnDel.onclick = (e) => { 
+      e.stopPropagation(); // evita toggle lista
+      eliminaTavolo(t);
+    };
+    box.appendChild(btnDel);
+
     container.appendChild(box);
   }
+}
+
+// CHIUSURA GIORNALIERO: crea riepilogo e mostra fuochi
+function chiusuraGiornata() {
+  if (Object.keys(tavoli).length === 0) return alert('Nessun tavolo da esportare');
+
+  let data = new Date();
+  let filename = 'riepilogo_' + data.getFullYear() + '-' + (data.getMonth() + 1) + '-' + data.getDate() + '.txt';
+  let contenuto = 'Riepilogo giornaliero ' + data.toLocaleDateString() + '\n\n';
+  for (let t in tavoli) {
+    contenuto += 'Tavolo ' + t + ':\n';
+    for (let p in tavoli[t].ordine) {
+      let o = tavoli[t].ordine[p];
+      contenuto += '  ' + p + ' x' + o.q + ' €' + (o.p * o.q).toFixed(2) + '\n';
+    }
+    contenuto += '\n';
+  }
+
+  let blob = new Blob([contenuto], { type: 'text/plain' });
+  let link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+
+  // Piccolo fuoco d'artificio CSS/JS
+  alert('🎆 Chiusura giornaliera completata! 🎆');
+}
+
+// ELIMINA TUTTI I TAVOLI con doppia conferma
+function eliminaTuttiTavoli() {
+  if (!confirm("Sicuro di voler eliminare tutti i tavoli?")) return;
+  if (!confirm("MA SEI PROPRIO SICURO? NON SI TORNA INDIETRO 😢")) return;
+
+  tavoli = {};
+  statoTavoli = {};
+  tavoloSelezionato = null;
+  renderTavoli();
 }
 </script>
 
 </body>
 </html>
+
