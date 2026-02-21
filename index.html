@@ -10,34 +10,35 @@ h1 { text-align:center; margin:10px 0; }
 .header { padding:10px; text-align:center; background:white; }
 .container { display:flex; flex-direction:column; height:calc(100vh - 60px); }
 .riga { display:flex; flex:1; flex-direction:column; }
-
 .items, .tavoli-box-container { flex:1; padding:10px; overflow-y:auto; -webkit-overflow-scrolling: touch; }
 .items { background:white; }
 .tavoli-box-container { background:#fafafa; border-top:3px solid #ddd; }
 
-.categoria-box { padding:10px; margin-bottom:10px; border-radius:8px; color:white; cursor:pointer; font-weight:bold; transition: 0.3s; }
-.categoria-box:hover { opacity:0.9; }
+.categoria-box { padding:10px; margin-bottom:10px; border-radius:8px; color:white; cursor:pointer; font-weight:bold; transition:0.3s; }
+.categoria-box.active { border:2px solid #3498db; background-color: #eaf3ff; }
 
 .main {background:#e74c3c;} 
 .light {background:#27ae60;} 
 .croccantella {background:#c0392b;} 
 .bevande {background:#2980b9;} 
-.altro {background:#8e44ad;} 
+.altro {background:#8e44ad;}
 
 .prodotto { padding:15px; margin:5px 0; border:none; border-radius:10px; width:100%; cursor:pointer; background:#3498db; color:white; }
 .prodotto:active { transform:scale(0.98); }
 
 .prodotti-dropdown { display:none; padding-left:10px; overflow-y:auto; max-height:250px; }
-.categoria-box.active { border:2px solid #3498db; background-color:#eaf3ff; }
-
 #altroInput { display:flex; margin-bottom:10px; }
-#altroInput input, #altroInput button { padding:8px; margin:5px; }
+#altroInput input, #altroInput button { padding:8px; margin:5px; flex:1; }
 
-.tavolo-box { padding:8px; margin-bottom:5px; border:1px solid #ccc; border-radius:5px; background:white; display:flex; flex-direction:column; }
-.tavolo-header { display:flex; justify-content: space-between; align-items:center; cursor:pointer; }
-.btnElimina { background:red; color:white; border:none; border-radius:50%; width:30px; height:30px; cursor:pointer; font-weight:bold; display:flex; justify-content:center; align-items:center; }
+.tavolo-box { padding:8px; margin-bottom:5px; border:1px solid #ccc; border-radius:5px; background:white; display:flex; flex-direction:column; position:relative; }
+.tavolo-box button { padding:3px 6px; font-size:12px; }
+
+button.azione { background:green; color:white; margin-top:10px; padding:10px; width:100%; border:none; border-radius:8px; cursor:pointer; }
+
 ul { padding-left:20px; }
 li { margin-bottom:8px; font-size:16px; }
+
+.elimina-tutti { background:red; color:white; padding:10px; border:none; border-radius:8px; margin-top:10px; cursor:pointer; width:100%; }
 </style>
 </head>
 <body>
@@ -45,16 +46,15 @@ li { margin-bottom:8px; font-size:16px; }
 <h1>Gestione Ordini Hotel</h1>
 
 <div class="header">
-  <strong>Numero Tavolo:</strong>
-  <input type="number" id="numeroTavolo" style="font-size:16px; padding:5px; width:80px;">
-  <button onclick="selezionaTavolo()">Apri Tavolo</button>
+<strong>Numero Tavolo:</strong>
+<input type="number" id="numeroTavolo" style="font-size:16px; padding:5px; width:80px;">
+<button onclick="selezionaTavolo()">Apri Tavolo</button>
 </div>
 
 <div class="container riga">
 
   <!-- Riquadro alto: Items -->
   <div class="items" id="itemsContainer">
-    <h3>BISTRO</h3>
 
     <!-- Light and Tasty -->
     <div class="categoria-box light" onclick="toggleProdotti('lightProdotti', this)">Light and Tasty</div>
@@ -74,7 +74,7 @@ li { margin-bottom:8px; font-size:16px; }
       <button class="prodotto" onclick="aggiungiProdotto('Lasagna',12)">Lasagna €12</button>
       <button class="prodotto" onclick="aggiungiProdotto('Tagliatella al ragù',11)">Tagliatella al ragù €11</button>
       <button class="prodotto" onclick="aggiungiProdotto('Tagliatelle al pomodoro',10)">Tagliatelle al pomodoro €10</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Crema carote e zenzero',9.50)">Crema carote e zenzero €9.50</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Crema carote e zenzero',9.5)">Crema carote e zenzero €9.50</button>
       <button class="prodotto" onclick="aggiungiProdotto('Club Sandwich',15)">Club Sandwich €15</button>
       <button class="prodotto" onclick="aggiungiProdotto('Ossobuco di Manzo',19)">Ossobuco di Manzo €19</button>
       <button class="prodotto" onclick="aggiungiProdotto('Filetto di Salmone',22)">Filetto di Salmone €22</button>
@@ -109,27 +109,50 @@ li { margin-bottom:8px; font-size:16px; }
         <button onclick="aggiungiProdottoAltro()">Aggiungi</button>
       </div>
     </div>
+
   </div>
 
   <!-- Riquadro basso: Tavoli e ordini -->
-<div class="tavoli-box-container" id="tavoliContainer">
-  <h3>Lista Tavoli</h3>
-</div>
+  <div class="tavoli-box-container" id="tavoliContainer">
+    <h3>Lista Tavoli</h3>
+  </div>
 
-<!-- Pulsanti azioni -->
-<div style="padding:10px;">
-  <button class="azione" onclick="chiusuraGiornata()">CHIUSURA GIORNALIERA</button>
-  <button class="azione" style="background:#c0392b;" onclick="eliminaTuttiTavoli()">ELIMINA TUTTI I TAVOLI</button>
+  <!-- Chiusura Giornaliera -->
+  <div style="padding:10px;">
+    <button class="azione" onclick="chiusuraGiornaliera()">CHIUSURA GIORNALIERA 🎆</button>
+    <button class="elimina-tutti" onclick="eliminaTuttiTavoli()">ELIMINA TUTTI I TAVOLI 😢</button>
+  </div>
+
 </div>
 
 <script>
-// Stato dei tavoli aperti/chiusi
 let tavoli = {};
 let tavoloSelezionato = null;
-let statoTavoli = {}; // true = aperto, false = chiuso
+let statoTavoli = {}; // tiene traccia se la lista ordini del tavolo è aperta
 
+// ---------- Toggle menu dropdown ----------
+function toggleProdotti(id, element) {
+  const prodotti = document.getElementById(id);
+  const allCategorie = document.querySelectorAll('.categoria-box');
+  for (let cat of allCategorie) {
+    if (cat !== element) {
+      cat.classList.remove('active');
+      const otherProdotti = document.getElementById(cat.textContent.trim() + 'Prodotti');
+      if (otherProdotti) otherProdotti.style.display = 'none';
+    }
+  }
+  if (prodotti.style.display === 'none' || prodotti.style.display === '') {
+    element.classList.add('active');
+    prodotti.style.display = 'block';
+  } else {
+    element.classList.remove('active');
+    prodotti.style.display = 'none';
+  }
+}
+
+// ---------- Tavolo ----------
 function selezionaTavolo() {
-  let num = document.getElementById('numeroTavolo').value;
+  const num = document.getElementById('numeroTavolo').value;
   if (!num) return alert('Inserisci numero tavolo');
   if (!tavoli[num]) tavoli[num] = { ordine: {} };
   tavoloSelezionato = num;
@@ -144,6 +167,15 @@ function aggiungiProdotto(nome, prezzo) {
   renderTavoli();
 }
 
+function aggiungiProdottoAltro() {
+  const nome = document.getElementById('altroNome').value;
+  const prezzo = parseFloat(document.getElementById('altroPrezzo').value);
+  if (!nome || isNaN(prezzo)) return alert('Inserisci un nome e un prezzo validi');
+  aggiungiProdotto(nome, prezzo);
+  document.getElementById('altroNome').value = '';
+  document.getElementById('altroPrezzo').value = '';
+}
+
 function rimuoviProdotto(tav, prod) {
   if (tavoli[tav].ordine[prod]) {
     tavoli[tav].ordine[prod].q--;
@@ -153,15 +185,16 @@ function rimuoviProdotto(tav, prod) {
 }
 
 function eliminaTavolo(tav) {
-  if (confirm("Eliminare definitivamente il tavolo " + tav + "?")) {
+  if (confirm(`Eliminare definitivamente il tavolo ${tav}?`)) {
     delete tavoli[tav];
     if (tavoloSelezionato === tav) tavoloSelezionato = null;
     renderTavoli();
   }
 }
 
+// ---------- Render Tavoli ----------
 function renderTavoli() {
-  let container = document.getElementById('tavoliContainer');
+  const container = document.getElementById('tavoliContainer');
   container.innerHTML = '<h3>Lista Tavoli</h3>';
 
   for (let t in tavoli) {
@@ -173,10 +206,10 @@ function renderTavoli() {
     box.style.padding = '5px';
     box.style.border = statoTavoli[t] ? '2px solid #3498db' : '1px solid #ccc';
     box.style.backgroundColor = statoTavoli[t] ? '#eaf3ff' : '#f0f0f0';
+    box.style.position = 'relative';
 
-    // Titolo tavolo cliccabile
     let header = document.createElement('div');
-    header.innerHTML = '<strong>Tavolo ' + t + '</strong>';
+    header.innerHTML = `<strong>Tavolo ${t}</strong>`;
     header.style.cursor = 'pointer';
     header.onclick = () => {
       statoTavoli[t] = !statoTavoli[t];
@@ -186,26 +219,27 @@ function renderTavoli() {
     };
     box.appendChild(header);
 
-    // Lista prodotti
     let lista = document.createElement('ul');
     lista.style.display = statoTavoli[t] ? 'block' : 'none';
     for (let prod in tavoli[t].ordine) {
       let o = tavoli[t].ordine[prod];
       let li = document.createElement('li');
-      li.innerHTML = prod + ' x' + o.q + ' €' + (o.p * o.q).toFixed(2) +
-                     ' <button onclick="rimuoviProdotto(\'' + t + '\',\'' + prod + '\')">-</button>';
+      li.innerHTML = `${prod} x${o.q} €${(o.p*o.q).toFixed(2)} 
+                      <button onclick="rimuoviProdotto('${t}','${prod}')">-</button>`;
       lista.appendChild(li);
     }
     box.appendChild(lista);
 
-    // Bottone elimina tavolo singolo (piccolo quadrato a destra)
+    // Pulsante elimina tavolo piccolo a destra
     let btnDel = document.createElement('button');
     btnDel.textContent = '🗑️';
-    btnDel.style.float = 'right';
+    btnDel.style.position = 'absolute';
+    btnDel.style.right = '5px';
+    btnDel.style.top = '5px';
     btnDel.style.width = '30px';
     btnDel.style.height = '30px';
-    btnDel.onclick = (e) => { 
-      e.stopPropagation(); // evita toggle lista
+    btnDel.onclick = (e) => {
+      e.stopPropagation();
       eliminaTavolo(t);
     };
     box.appendChild(btnDel);
@@ -214,39 +248,37 @@ function renderTavoli() {
   }
 }
 
-// CHIUSURA GIORNALIERO: crea riepilogo e mostra fuochi
-function chiusuraGiornata() {
+// ---------- Chiusura Giornaliera ----------
+function chiusuraGiornaliera() {
   if (Object.keys(tavoli).length === 0) return alert('Nessun tavolo da esportare');
-
   let data = new Date();
-  let filename = 'riepilogo_' + data.getFullYear() + '-' + (data.getMonth() + 1) + '-' + data.getDate() + '.txt';
+  let filename = 'riepilogo_'+data.getFullYear()+'-'+(data.getMonth()+1)+'-'+data.getDate()+'.txt';
   let contenuto = 'Riepilogo giornaliero ' + data.toLocaleDateString() + '\n\n';
   for (let t in tavoli) {
-    contenuto += 'Tavolo ' + t + ':\n';
+    contenuto += `Tavolo ${t}:\n`;
     for (let p in tavoli[t].ordine) {
       let o = tavoli[t].ordine[p];
-      contenuto += '  ' + p + ' x' + o.q + ' €' + (o.p * o.q).toFixed(2) + '\n';
+      contenuto += `  ${p} x${o.q} €${(o.p*o.q).toFixed(2)}\n`;
     }
     contenuto += '\n';
   }
 
-  let blob = new Blob([contenuto], { type: 'text/plain' });
+  // Creazione file
+  let blob = new Blob([contenuto], {type:'text/plain'});
   let link = document.createElement('a');
   link.href = URL.createObjectURL(blob);
   link.download = filename;
   link.click();
 
-  // Piccolo fuoco d'artificio CSS/JS
-  alert('🎆 Chiusura giornaliera completata! 🎆');
+  // Faccine e fuochi 🎆
+  alert('Chiusura giornaliera completata! 🎆');
 }
 
-// ELIMINA TUTTI I TAVOLI con doppia conferma
+// ---------- Eliminazione tutti i tavoli ----------
 function eliminaTuttiTavoli() {
-  if (!confirm("Sicuro di voler eliminare tutti i tavoli?")) return;
-  if (!confirm("MA SEI PROPRIO SICURO? NON SI TORNA INDIETRO 😢")) return;
-
+  if (!confirm('Sicuro di voler eliminare tutti i tavoli?')) return;
+  if (!confirm('MA SEI PROPRIO SICURO? NON SI TORNA INDIETRO 😢')) return;
   tavoli = {};
-  statoTavoli = {};
   tavoloSelezionato = null;
   renderTavoli();
 }
@@ -254,4 +286,3 @@ function eliminaTuttiTavoli() {
 
 </body>
 </html>
-
