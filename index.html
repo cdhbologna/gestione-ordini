@@ -117,7 +117,7 @@ li { margin-bottom:8px; font-size:16px; }
     </div>
   </div>
 
-  <!-- Riquadro basso: Tavoli e ordini -->
+<!-- Riquadro basso: Tavoli e ordini -->
 <div class="tavoli-box-container" id="tavoliContainer">
   <h3>Lista Tavoli</h3>
 </div>
@@ -171,6 +171,9 @@ function renderTavoli() {
     box.style.padding = '5px';
     box.style.border = '1px solid #ccc';
     box.style.backgroundColor = '#f0f0f0';
+    box.style.display = 'flex';
+    box.style.justifyContent = 'space-between';
+    box.style.alignItems = 'center';  // Centra verticalmente
 
     // Titolo tavolo cliccabile
     let header = document.createElement('div');
@@ -194,14 +197,36 @@ function renderTavoli() {
     }
     box.appendChild(lista);
 
-    // Bottone elimina tavolo
+    // Bottone elimina tavolo (quadrato a destra)
     let btnDel = document.createElement('button');
-    btnDel.textContent = 'Elimina Tavolo';
+    btnDel.textContent = 'X';  // Impostiamo un 'X' per fare un quadrato
+    btnDel.className = 'btnElimina'; // Applichiamo la classe CSS per il pulsante
     btnDel.onclick = () => eliminaTavolo(t);
     box.appendChild(btnDel);
 
     container.appendChild(box);
   }
 }
-
 </script>
+
+<style>
+  /* Aggiungi lo stile per il pulsante elimina */
+  .btnElimina {
+    padding: 5px 10px;
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 50%;  /* Rende il pulsante un cerchio */
+    cursor: pointer;
+    font-size: 16px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .btnElimina:hover {
+    background-color: darkred; /* Cambia il colore al passaggio del mouse */
+  }
+</style>
