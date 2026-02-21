@@ -107,9 +107,16 @@ let tavoli = {};
 let tavoloSelezionato = null;
 
 function mostraProdotti(categoria){
-  let divId = categoria + 'Prodotti';
-  let div = document.getElementById(divId);
-  div.style.display = div.style.display === 'none' ? 'block' : 'none';
+  // Chiudi tutte le categorie
+  const categories = ['bistro','main','light','croccantella','bevande','vini'];
+  categories.forEach(cat => {
+    let d = document.getElementById(cat+'Prodotti');
+    if(d) d.style.display='none';
+  });
+
+  // Apri quella cliccata
+  let div = document.getElementById(categoria+'Prodotti');
+  if(div) div.style.display='block';
 }
 
 function selezionaTavolo(){
@@ -220,3 +227,4 @@ function chiusuraGiornaliera(){
 
 </body>
 </html>
+
