@@ -23,6 +23,7 @@ h1 { text-align:center; margin:10px 0; }
 .croccantella {background:#c0392b;} 
 .bevande {background:#2980b9;} 
 .vini {background:#b71540;}
+.altro {background:#8e44ad;} /* Colore personalizzato per la categoria ALTRO */
 
 .prodotto { padding:15px; margin:5px 0; border:none; border-radius:10px; width:100%; cursor:pointer; background:#3498db; color:white; }
 .prodotto:active { transform:scale(0.98); }
@@ -58,47 +59,57 @@ li { margin-bottom:8px; font-size:16px; }
   <div class="items" id="itemsContainer">
     <h3>BISTRO</h3>
 
+    <!-- Light and Tasty -->
+    <div class="categoria-box light" onclick="toggleProdotti('lightProdotti', this)">Light and Tasty</div>
+    <div id="lightProdotti" class="prodotti-dropdown">
+      <button class="prodotto" onclick="aggiungiProdotto('Bufala',11)">Bufala €11</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Salmone in rosa',14)">Salmone in rosa €14</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Salmon salad',16)">Salmon salad €16</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Insalatone dello chef',15)">Insalatone dello chef €15</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Caesar salad',15)">Caesar salad €15</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Tagliere delle eccellenze',17)">Tagliere delle eccellenze €17</button>
+    </div>
+
     <!-- MAIN -->
     <div class="categoria-box main" onclick="toggleProdotti('mainProdotti', this)">MAIN</div>
     <div id="mainProdotti" class="prodotti-dropdown">
-      <button class="prodotto" onclick="aggiungiProdotto('Tagliata di manzo 200g',18)">Tagliata di manzo 200g €18</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Hamburger Bistro con patatine',12)">Hamburger €12</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Insalata di pollo',10)">Insalata di pollo €10</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Filetto di salmone alla griglia',20)">Filetto di salmone €20</button>
-    </div>
-
-    <!-- LIGHT & TASTY -->
-    <div class="categoria-box light" onclick="toggleProdotti('lightProdotti', this)">LIGHT & TASTY</div>
-    <div id="lightProdotti" class="prodotti-dropdown">
-      <button class="prodotto" onclick="aggiungiProdotto('Insalata mista',8)">Insalata mista €8</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Zuppa del giorno',7)">Zuppa €7</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Poke bowl vegetariano',12)">Poke bowl €12</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Tortelli',12)">Tortelli €12</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Lasagna',12)">Lasagna €12</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Tagliatella al ragù',11)">Tagliatella al ragù €11</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Tagliatelle al pomodoro',10)">Tagliatelle al pomodoro €10</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Crema carote e zenzero',9.50)">Crema carote e zenzero €9.50</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Club Sandwich',15)">Club Sandwich €15</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Ossobuco di Manzo',19)">Ossobuco di Manzo €19</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Filetto di Salmone',22)">Filetto di Salmone €22</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Petto di pollo',15)">Petto di pollo €15</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Ribs di Maiale',17)">Ribs di Maiale €17</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Tacchino tonnato',15)">Tacchino tonnato €15</button>
     </div>
 
     <!-- CROCCANTELLA -->
     <div class="categoria-box croccantella" onclick="toggleProdotti('croccantellaProdotti', this)">CROCCANTELLA</div>
     <div id="croccantellaProdotti" class="prodotti-dropdown">
-      <button class="prodotto" onclick="aggiungiProdotto('Patatine fritte',5)">Patatine €5</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Onion rings',6)">Onion rings €6</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Nachos con formaggio',7)">Nachos €7</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Margherita',10)">Margherita €10</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Parma',14)">Parma €14</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Bolognese',13)">Bolognese €13</button>
     </div>
 
     <!-- BEVANDE -->
     <div class="categoria-box bevande" onclick="toggleProdotti('bevandeProdotti', this)">BEVANDE</div>
     <div id="bevandeProdotti" class="prodotti-dropdown">
-      <button class="prodotto" onclick="aggiungiProdotto('Acqua naturale 500 ml',1.5)">Acqua €1.50</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Soft drink 330 ml',4)">Soft drink €4</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Caffè espresso',1.5)">Caffè €1.50</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Acqua (0.5)',1.5)">Acqua (0.5L) €1.50</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Acqua (0.75)',3)">Acqua (0.75L) €3</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Vino della casa (calice)',5)">Vino della casa (calice) €5</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Soft drink',4)">Soft drink €4</button>
     </div>
 
-    <!-- VINI -->
-    <div class="categoria-box vini" onclick="toggleProdotti('viniProdotti', this)">VINI</div>
-    <div id="viniProdotti" class="prodotti-dropdown">
-      <button class="prodotto" onclick="aggiungiProdotto('Bianco della casa 125ml',5)">Bianco €5</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Rosso della casa 125ml',5)">Rosso €5</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Prosecco 125ml',6)">Prosecco €6</button>
+    <!-- ALTRO -->
+    <div class="categoria-box altro" onclick="toggleProdotti('altroProdotti', this)">ALTRO</div>
+    <div id="altroProdotti" class="prodotti-dropdown">
+      <button class="prodotto" onclick="aggiungiProdotto('Pizza al prosciutto crudo',13)">Pizza al prosciutto crudo €13</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Piada con squacquerone',10.50)">Piada con squacquerone €10.50</button>
+      <button class="prodotto" onclick="aggiungiProdotto('Antipasto misto',18)">Antipasto misto €18.00</button>
     </div>
-
   </div>
 
   <!-- Riquadro basso: Tavoli e ordini -->
@@ -108,128 +119,99 @@ li { margin-bottom:8px; font-size:16px; }
 
 </div>
 
-<div style="padding:10px;">
-  <button class="azione" onclick="chiusuraGiornaliera()">CHIUSURA GIORNALIERA</button>
-</div>
-
 <script>
 let tavoli = {};
 let tavoloSelezionato = null;
-let statoTavoli = {}; // memorizza se il box è aperto o chiuso
 
-// Mostra/nasconde dropdown prodotti e gestisce lo stato attivo
-function toggleProdotti(id, element){
-  let div = document.getElementById(id);
-  div.style.display = div.style.display === 'block' ? 'none' : 'block';
-  
-  // Aggiunge/rimuove la classe "active" per il bordo colorato
-  let allCategoria = document.querySelectorAll('.categoria-box');
-  allCategoria.forEach(cat => cat.classList.remove('active'));
-  
-  element.classList.add('active');
+function toggleProdotti(prodottiId, elemento) {
+  const div = document.getElementById(prodottiId);
+  div.style.display = div.style.display === 'none' ? 'block' : 'none';
+  elemento.classList.toggle('active');
 }
 
-// Seleziona tavolo
-function selezionaTavolo(){
+function selezionaTavolo() {
   let num = document.getElementById('numeroTavolo').value;
   if(!num) return alert('Inserisci numero tavolo');
-  if(!tavoli[num]) tavoli[num]={ordine:{}};
+  if(!tavoli[num]) tavoli[num] = { ordine: {} };
   tavoloSelezionato = num;
   renderTavoli();
 }
 
-// Aggiunge prodotto
-function aggiungiProdotto(nome, prezzo){
-  if(!tavoloSelezionato) return alert('Seleziona un tavolo prima');
+function aggiungiProdotto(nome, prezzo) {
+  if (!tavoloSelezionato) return alert('Seleziona un tavolo prima');
   let ord = tavoli[tavoloSelezionato].ordine;
-  if(ord[nome]) ord[nome].q++;
-  else ord[nome]={p:prezzo,q:1};
+  if (ord[nome]) ord[nome].q++;
+  else ord[nome] = { p: prezzo, q: 1 };
   renderTavoli();
 }
 
-// Rimuove singolo prodotto
-function rimuoviProdotto(tav, prod){
-  if(tavoli[tav].ordine[prod]){
+function rimuoviProdotto(tav, prod) {
+  if (tavoli[tav].ordine[prod]) {
     tavoli[tav].ordine[prod].q--;
-    if(tavoli[tav].ordine[prod].q<=0) delete tavoli[tav].ordine[prod];
+    if (tavoli[tav].ordine[prod].q <= 0) delete tavoli[tav].ordine[prod];
   }
   renderTavoli();
 }
 
-// Elimina tavolo
-function eliminaTavolo(tav){
-  if(confirm("Eliminare definitivamente il tavolo "+tav+"?")){
+function eliminaTavolo(tav) {
+  if (confirm("Eliminare definitivamente il tavolo " + tav + "?")) {
     delete tavoli[tav];
-    if(tavoloSelezionato===tav) tavoloSelezionato=null;
+    if (tavoloSelezionato === tav) tavoloSelezionato = null;
     renderTavoli();
   }
 }
 
-// Render Tavoli
-function renderTavoli(){
+function renderTavoli() {
   let container = document.getElementById('tavoliContainer');
-  container.innerHTML='<h3>Lista Tavoli</h3>';
+  container.innerHTML = '<h3>Lista Tavoli</h3>';
   
-  for(let t in tavoli){
-    if(statoTavoli[t]===undefined) statoTavoli[t] = false;
-
+  for (let t in tavoli) {
     let box = document.createElement('div');
-    box.className='tavolo-box';
-    box.style.cursor = 'pointer';
-    box.style.marginBottom = '10px';
-    box.style.padding = '5px';
-    box.style.border = statoTavoli[t] ? '2px solid #3498db' : '1px solid #000';
-    box.style.backgroundColor = statoTavoli[t] ? '#eaf3ff' : '#f0f0f0';
-
-    // Titolo tavolo cliccabile
+    box.className = 'tavolo-box';
     let header = document.createElement('div');
-    header.innerHTML = '<strong>Tavolo '+t+'</strong>';
-    header.onclick = () => {
-      statoTavoli[t] = !statoTavoli[t]; // aggiorna lo stato
-      lista.style.display = statoTavoli[t] ? 'block' : 'none';
-      box.style.border = statoTavoli[t] ? '2px solid #3498db' : '1px solid #000';
-      box.style.backgroundColor = statoTavoli[t] ? '#eaf3ff' : '#f0f0f0';
-    };
+    header.innerHTML = '<strong>Tavolo ' + t + '</strong>';
     box.appendChild(header);
-
-    // Lista prodotti
+    
     let lista = document.createElement('ul');
-    lista.style.display = statoTavoli[t] ? 'block' : 'none';
-    for(let prod in tavoli[t].ordine){
+    for (let prod in tavoli[t].ordine) {
       let o = tavoli[t].ordine[prod];
       let li = document.createElement('li');
-      li.innerHTML = prod+' x'+o.q+' €'+(o.p*o.q).toFixed(2)+' <button onclick="rimuoviProdotto(\''+t+'\',\''+prod+'\')">-</button>';
+      li.innerHTML = prod + ' x' + o.q + ' €' + (o.p * o.q).toFixed(2) + ' <button onclick="rimuoviProdotto(\'' + t + '\',\'' + prod + '\')">-</button>';
       lista.appendChild(li);
     }
     box.appendChild(lista);
-
-    // Bottone elimina tavolo
+    
     let btnDel = document.createElement('button');
-    btnDel.textContent='Elimina Tavolo';
-    btnDel.onclick=()=>eliminaTavolo(t);
+    btnDel.textContent = 'Elimina Tavolo';
+    btnDel.onclick = () => eliminaTavolo(t);
     box.appendChild(btnDel);
-
+    
     container.appendChild(box);
   }
 }
 
-// Chiusura giornaliera
-function chiusuraGiornaliera(){
-  if(Object.keys(tavoli).length===0) return alert('Nessun tavolo da esportare');
+function chiusuraGiornaliera() {
+  if (Object.keys(tavoli).length === 0) return alert('Nessun tavolo da esportare');
+  
+  mostraNotifica();
+  showFireworks();
+
   let data = new Date();
-  let filename = 'riepilogo_'+data.getFullYear()+'-'+(data.getMonth()+1)+'-'+data.getDate()+'.txt';
-  let contenuto='Riepilogo giornaliero '+data.toLocaleDateString()+'\n\n';
-  for(let t in tavoli){
-    contenuto+='Tavolo '+t+':\n';
-    for(let p in tavoli[t].ordine){
+  let filename = 'riepilogo_' + data.getFullYear() + '-' + (data.getMonth() + 1) + '-' + data.getDate() + '.txt';
+  let contenuto = 'Riepilogo giornaliero ' + data.toLocaleDateString() + '\n\n';
+  
+  for (let t in tavoli) {
+    contenuto += 'Tavolo ' + t + ':\n';
+    for (let p in tavoli[t].ordine) {
       let o = tavoli[t].ordine[p];
-      contenuto+='  '+p+' x'+o.q+' €'+(o.p*o.q).toFixed(2)+'\n';
+      contenuto += '  ' + p + ' x' + o.q + ' €' + (o.p * o.q).toFixed(2) + '\n';
     }
-    contenuto+='\n';
+    contenuto += '\n';
   }
-  let blob = new Blob([contenuto], {type:'text/plain'});
+  
+  let blob = new Blob([contenuto], { type: 'text/plain' });
   let link = document.createElement('a');
-  link.href=URL.createObjectURL(blob);
+  link.href = URL.createObjectURL(blob);
   link.download = filename;
   link.click();
 }
