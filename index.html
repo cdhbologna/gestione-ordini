@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestione Ordini Hotel</title>
+<style>
+body{ font-family: Arial, sans-serif; margin:0; background:#f2f2f2; }
+h1{ text-align:center; margin:10px 0; }
+.header{ padding:10px; text-align:center; background:white; }
+.container{ display:flex; flex-direction:column; height:calc(100vh - 60px); }
+.riga{ display:flex; flex:1; }
+.items, .tavoli-box-container{ flex:1; padding:10px; overflow-y:auto; -webkit-overflow-scrolling: touch; }
+.items{ background:white; }
+.tavoli-box-container{ background:#fafafa; border-top:3px solid #ddd; }
+.categoria-box{ padding:10px; margin-bottom:10px; border-radius:8px; color:white; cursor:pointer; font-weight:bold; }
+.main{background:#e74c3c;} .light{background:#27ae60;} .croccantella{background:#c0392b;} .bevande{background:#2980b9;} .vini{background:#b71540;}
+
+.prodotto{ padding:15px; margin:5px 0; border:none; border-radius:10px; width:100%; cursor:pointer; background:#3498db; color:white; }
+.prodotto:active{ transform:scale(0.98); }
+
+button.quantita-btn{ padding:5px 10px; margin-left:6px; font-size:14px; }
+button.azione{ background:green; color:white; margin-top:10px; padding:10px; width:100%; border:none; border-radius:8px; cursor:pointer; }
+button.rimuovi{ background:red; color:white; margin-top:5px; padding:8px; width:100%; border:none; border-radius:8px; cursor:pointer; }
+
+#totale{ font-weight:bold; font-size:20px; margin-top:10px; }
+ul{ padding-left:20px; }
+li{ margin-bottom:8px; font-size:16px; }
+
+.tavolo-box{ padding:8px; margin-bottom:5px; border:1px solid #ccc; border-radius:5px; background:white; display:flex; justify-content:space-between; align-items:center; }
+.tavolo-box button{ padding:3px 6px; font-size:12px; margin-left:4px; }
+</style>
+</head>
+<body>
+
+<h1>Gestione Ordini Hotel</h1>
+
+<div class="header">
+<strong>Numero Tavolo:</strong>
+<input type="number" id="numeroTavolo" style="font-size:16px; padding:5px; width:80px;">
+<button onclick="selezionaTavolo()">Apri Tavolo</button>
+</div>
+
+<div class="container riga">
+  <!-- Riquadro alto: Items -->
+  <div class="items" id="itemsContainer">
+
+    <!-- BISTRO -->
+    <div class="categoria-box" onclick="mostraProdotti('bistro')">BISTRO</div>
+    <div id="bistroProdotti" style="display:none; padding-left:10px;">
+
+      <!-- MAIN -->
+      <div class="categoria-box main" onclick="mostraProdotti('main')">MAIN</div>
+      <div id="mainProdotti" style="display:none; padding-left:10px;">
+        <button class="prodotto" onclick="aggiungiProdotto('Tagliata di manzo 200g',18)">Tagliata di manzo 200g €18.00</button>
+        <button class="prodotto" onclick="aggiungiProdotto('Hamburger Bistro con patatine',12)">Hamburger Bistro con patatine €12.00</button>
+        <button class="prodotto" onclick="aggiungiProdotto('Insalata di pollo',10)">Insalata di pollo €10.00</button>
+        <button class="prodotto" onclick="aggiungiProdotto('Filetto di salmone alla griglia',20)">Filetto di salmone alla griglia €20.00</button>
+      </div>
+
+      <!-- LIGHT & TASTY -->
+      <div class="categoria-box light" onclick="mostraProdotti('light')">LIGHT & TASTY</div>
+      <div id="lightProdotti" style="display:none; padding-left:10px;">
+        <button class="prodotto" onclick="aggiungiProdotto('Insalata mista',8)">Insalata mista €8.00</button>
+        <button class="prodotto" onclick="aggiungiProdotto('Zuppa del giorno',7)">Zuppa del giorno €7.00</button>
+        <button class="prodotto" onclick="aggiungiProdotto('Poke bowl vegetariano',12)">Poke bowl vegetariano €12.00</button>
+      </div>
+
+      <!-- CROCCANTELLA -->
+      <div class="categoria-box croccantella" onclick="mostraProdotti('croccantella')">CROCCANTELLA</div>
+      <div id="croccantellaProdotti" style="display:none; padding-left:10px;">
+        <button class="prodotto" onclick="aggiungiProdotto('Patatine fritte',5)">Patatine fritte €5.00</button>
+        <button class="prodotto" onclick="aggiungiProdotto('Onion rings',6)">Onion rings €6.00</button>
+        <button class="prodotto" onclick="aggiungiProdotto('Nachos con formaggio',7)">Nachos con formaggio €7.00</button>
+      </div>
+
+      <!-- BEVANDE -->
+      <div class="categoria-box bevande" onclick="mostraProdotti('bevande')">BEVANDE</div>
+      <div id="bevandeProdotti" style="display:none; padding-left:10px;">
+        <button class="prodotto" onclick="aggiungiProdotto('Acqua naturale 500 ml',1.5)">Acqua naturale 500 ml €1.50</button>
+        <button class="prodotto" onclick="aggiungiProdotto('Acqua frizzante 750 ml',3)">Acqua frizzante 750 ml €3.00</button>
+        <button class="prodotto" onclick="aggiungiProdotto('Soft drink 330 ml',4)">Soft drink 330 ml €4.00</button>
+        <button class="prodotto" onclick="aggiungiProdotto('Vino della casa 125 ml',5)">Vino della casa 125 ml €5.00</button>
+        <button class="prodotto" onclick="aggiungiProdotto('Caffè espresso',1.5)">Caffè espresso €1.50</button>
+      </div>
+
+      <!-- VINI -->
+      <div class="categoria-box vini" onclick="mostraProdotti('vini')">VINI</div>
+      <div id="viniProdotti" style="display:none; padding-left:10px;">
+        <button class="prodotto" onclick="aggiungiProdotto('Bianco della casa 125ml',5)">Bianco della casa 125ml €5.00</button>
+        <button class="prodotto" onclick="aggiungiProdotto('Rosso della casa 125ml',5)">Rosso della casa 125ml €5.00</button>
+        <button class="prodotto" onclick="aggiungiProdotto('Prosecco 125ml',6)">Prosecco 125ml €6.00</button>
+        <button class="prodotto" onclick="aggiungiProdotto('Chianti DOCG 125ml',6)">Chianti DOCG 125ml €6.00</button>
+      </div>
+
+    </div>
+    <!-- FINE BISTRO -->
+
+  <!-- Riquadro basso: Tavoli e ordini -->
+  <div class="tavoli-box-container" id="tavoliContainer">
+    <h3>Lista Tavoli</h3>
+  </div>
+</div>
+
+<script>
+let tavoli = {};
+let tavoloSelezionato = null;
+
+function mostraProdotti(categoria){
+  let divId = categoria + 'Prodotti';
+  let div = document.getElementById(divId);
+  div.style.display = div.style.display === 'none' ? 'block' : 'none';
+}
+
+function selezionaTavolo(){
+  let num = document.getElementById('numeroTavolo').value;
+  if(!num) return alert('Inserisci numero tavolo');
+  if(!tavoli[num]) tavoli[num]={ordine:{}};
+  tavoloSelezionato = num;
+  renderTavoli();
+}
+
+function aggiungiProdotto(nome, prezzo){
+  if(!tavoloSelezionato) return alert('Seleziona un tavolo prima');
+  let ord = tavoli[tavoloSelezionato].ordine;
+  if(ord[nome]) ord[nome].q++;
+  else ord[nome]={p:prezzo,q:1};
+  renderTavoli();
+}
+
+function rimuoviProdotto(tav, prod){
+  if(tavoli[tav].ordine[prod]){
+    tavoli[tav].ordine[prod].q--;
+    if(tavoli[tav].ordine[prod].q<=0) delete tavoli[tav].ordine[prod];
+  }
+  renderTavoli();
+}
+
+function eliminaTavolo(tav){
+  if(confirm("Eliminare definitivamente il tavolo "+tav+"?")){
+    delete tavoli[tav];
+    if(tavoloSelezionato===tav) tavoloSelezionato=null;
+    renderTavoli();
+  }
+}
+
+let statoTavoli = {}; // memorizza se il box è aperto o chiuso
+
+function renderTavoli(){
+  let container = document.getElementById('tavoliContainer');
+  container.innerHTML='<h3>Lista Tavoli</h3>';
+  
+  for(let t in tavoli){
+    if(statoTavoli[t]===undefined) statoTavoli[t] = false;
+
+    let box = document.createElement('div');
+    box.className='tavolo-box';
+    box.style.cursor = 'pointer';
+    box.style.marginBottom = '10px';
+    box.style.padding = '5px';
+    box.style.border = statoTavoli[t] ? '2px solid #3498db' : '1px solid #000';
+    box.style.backgroundColor = statoTavoli[t] ? '#eaf3ff' : '#f0f0f0';
+
+    // Titolo tavolo cliccabile
+    let header = document.createElement('div');
+    header.innerHTML = '<strong>Tavolo '+t+'</strong>';
+    header.onclick = () => {
+      statoTavoli[t] = !statoTavoli[t]; // aggiorna lo stato
+      lista.style.display = statoTavoli[t] ? 'block' : 'none';
+      box.style.border = statoTavoli[t] ? '2px solid #3498db' : '1px solid #000';
+      box.style.backgroundColor = statoTavoli[t] ? '#eaf3ff' : '#f0f0f0';
+    };
+    box.appendChild(header);
+
+    // Lista prodotti
+    let lista = document.createElement('ul');
+    lista.style.display = statoTavoli[t] ? 'block' : 'none';
+    for(let prod in tavoli[t].ordine){
+      let o = tavoli[t].ordine[prod];
+      let li = document.createElement('li');
+      li.innerHTML = prod+' x'+o.q+' €'+(o.p*o.q).toFixed(2)+' <button onclick="rimuoviProdotto(\''+t+'\',\''+prod+'\')">-</button>';
+      lista.appendChild(li);
+    }
+    box.appendChild(lista);
+
+    // Bottone elimina tavolo
+    let btnDel = document.createElement('button');
+    btnDel.textContent='Elimina Tavolo';
+    btnDel.onclick=()=>eliminaTavolo(t);
+    box.appendChild(btnDel);
+
+    container.appendChild(box);
+  }
+}
+
+function chiusuraGiornaliera(){
+  if(Object.keys(tavoli).length===0) return alert('Nessun tavolo da esportare');
+  let data = new Date();
+  let filename = 'riepilogo_'+data.getFullYear()+'-'+(data.getMonth()+1)+'-'+data.getDate()+'.txt';
+  let contenuto='Riepilogo giornaliero '+data.toLocaleDateString()+'\n\n';
+  for(let t in tavoli){
+    contenuto+='Tavolo '+t+':\n';
+    for(let p in tavoli[t].ordine){
+      let o = tavoli[t].ordine[p];
+      contenuto+='  '+p+' x'+o.q+' €'+(o.p*o.q).toFixed(2)+'\n';
+    }
+    contenuto+='\n';
+  }
+  let blob = new Blob([contenuto], {type:'text/plain'});
+  let link = document.createElement('a');
+  link.href=URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+}
+</script>
+
+<div style="padding:10px;">
+  <button class="azione" onclick="chiusuraGiornaliera()">CHIUSURA GIORNALIERA</button>
+</div>
+
+</body>
+</html>
