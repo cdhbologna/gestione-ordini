@@ -221,13 +221,24 @@ function renderTavoli() {
 
     let lista = document.createElement('ul');
     lista.style.display = statoTavoli[t] ? 'block' : 'none';
+
+    // --- Calcolo totale tavolo ---
+    let totaleTavolo = 0;
     for (let prod in tavoli[t].ordine) {
       let o = tavoli[t].ordine[prod];
+      totaleTavolo += o.p * o.q;
+
       let li = document.createElement('li');
       li.innerHTML = `${prod} x${o.q} €${(o.p*o.q).toFixed(2)} 
                       <button onclick="rimuoviProdotto('${t}','${prod}')">-</button>`;
       lista.appendChild(li);
     }
+
+    // Mostra totale in fondo
+    let liTotale = document.createElement('li');
+    liTotale.innerHTML = `<strong>Totale Tavolo: €${totaleTavolo.toFixed(2)}</strong>`;
+    lista.appendChild(liTotale);
+
     box.appendChild(lista);
 
     // Pulsante elimina tavolo piccolo a destra
@@ -256,11 +267,13 @@ function chiusuraGiornaliera() {
   let contenuto = 'Riepilogo giornaliero ' + data.toLocaleDateString() + '\n\n';
   for (let t in tavoli) {
     contenuto += `Tavolo ${t}:\n`;
+    let totaleTavolo = 0;
     for (let p in tavoli[t].ordine) {
       let o = tavoli[t].ordine[p];
       contenuto += `  ${p} x${o.q} €${(o.p*o.q).toFixed(2)}\n`;
+      totaleTavolo += o.p*o.q;
     }
-    contenuto += '\n';
+    contenuto += `  Totale Tavolo: €${totaleTavolo.toFixed(2)}\n\n`;
   }
 
   // Creazione file
