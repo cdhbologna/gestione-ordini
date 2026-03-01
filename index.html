@@ -1,301 +1,618 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gestione Ordini Hotel</title>
-<style>
-body { font-family: Arial, sans-serif; margin:0; background:#f2f2f2; }
-h1 { text-align:center; margin:10px 0; }
-.header { padding:10px; text-align:center; background:white; }
-.container { display:flex; flex-direction:column; height:calc(100vh - 60px); }
-.riga { display:flex; flex:1; flex-direction:column; }
-.items, .tavoli-box-container { flex:1; padding:10px; overflow-y:auto; -webkit-overflow-scrolling: touch; }
-.items { background:white; }
-.tavoli-box-container { background:#fafafa; border-top:3px solid #ddd; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestione Ordini Hotel</title>
 
-.categoria-box { padding:10px; margin-bottom:10px; border-radius:8px; color:white; cursor:pointer; font-weight:bold; transition:0.3s; }
-.categoria-box.active { border:2px solid #3498db; background-color: #eaf3ff; }
+  <style>
+    :root{
+      --bg:#f2f2f2;
+      --card:#ffffff;
+      --muted:#fafafa;
+      --border:#ddd;
+      --accent:#3498db;
+      --danger:#e74c3c;
+      --ok:#27ae60;
+      --shadow: 0 6px 16px rgba(0,0,0,0.08);
+    }
 
-.main {background:#e74c3c;} 
-.light {background:#27ae60;} 
-.croccantella {background:#c0392b;} 
-.bevande {background:#2980b9;} 
-.altro {background:#8e44ad;}
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      background: var(--bg);
+      color:#111;
+    }
 
-.prodotto { padding:15px; margin:5px 0; border:none; border-radius:10px; width:100%; cursor:pointer; background:#3498db; color:white; }
-.prodotto:active { transform:scale(0.98); }
+    h1 { text-align: center; margin: 10px 0; }
 
-.prodotti-dropdown { display:none; padding-left:10px; overflow-y:auto; max-height:250px; }
-#altroInput { display:flex; margin-bottom:10px; }
-#altroInput input, #altroInput button { padding:8px; margin:5px; flex:1; }
+    .header {
+      padding: 10px;
+      text-align: center;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
 
-.tavolo-box { padding:8px; margin-bottom:5px; border:1px solid #ccc; border-radius:5px; background:white; display:flex; flex-direction:column; position:relative; }
-.tavolo-box button { padding:3px 6px; font-size:12px; }
+    .header input {
+      font-size: 16px;
+      padding: 6px 8px;
+      width: 90px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      outline: none;
+    }
 
-button.azione { background:green; color:white; margin-top:10px; padding:10px; width:100%; border:none; border-radius:8px; cursor:pointer; }
+    .header button{
+      padding: 8px 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #111;
+      color: white;
+      margin-left: 6px;
+    }
+    .header button:hover{ opacity: 0.9; }
 
-ul { padding-left:20px; }
-li { margin-bottom:8px; font-size:16px; }
+    .container { display: flex; flex-direction: column; height: calc(100vh - 70px); }
+    .riga { display:flex; flex:1; flex-direction:column; }
 
-.elimina-tutti { background:red; color:white; padding:10px; border:none; border-radius:8px; margin-top:10px; cursor:pointer; width:100%; }
-</style>
+    .items, .tavoli-box-container {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .items { background: var(--card); }
+    .tavoli-box-container { background: var(--muted); border-top: 3px solid var(--border); }
+
+    .categoria-box {
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      color: white;
+      cursor: pointer;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      transition: 0.2s;
+      user-select: none;
+    }
+
+    .categoria-box.active {
+      outline: 2px solid var(--accent);
+      background-color: #eaf3ff !important;
+      color: #111;
+    }
+
+    .main { background:#e74c3c; }
+    .light { background:#27ae60; }
+    .croccantella { background:#c0392b; }
+    .bevande { background:#2980b9; }
+    .altro { background:#8e44ad; }
+
+    .prodotti-dropdown { display:none; padding-left: 10px; overflow-y:auto; max-height: 260px; }
+
+    .prodotto {
+      padding: 14px;
+      margin: 6px 0;
+      border: none;
+      border-radius: 12px;
+      width: 100%;
+      cursor: pointer;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      transition: 0.15s;
+    }
+    .prodotto:hover { background: #217dbb; }
+    .prodotto:active { transform: scale(0.98); }
+
+    #altroInput { display:flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+    #altroInput input, #altroInput button {
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      flex: 1;
+      min-width: 120px;
+    }
+    #altroInput button{
+      border: none;
+      background: #111;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .tavolo-box {
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      background: white;
+      display:flex;
+      flex-direction:column;
+      position:relative;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+    }
+
+    .tavolo-header {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .pill {
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #eee;
+    }
+
+    ul { padding-left: 18px; margin: 8px 0 0; }
+    li { margin-bottom: 8px; font-size: 15px; }
+
+    .mini-btn {
+      padding: 4px 8px;
+      font-size: 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .mini-btn.minus { background:#333; color:#fff; }
+    .mini-btn.plus  { background:#0f7a2f; color:#fff; margin-left:6px; }
+    .mini-btn:hover { opacity: 0.92; }
+
+    .trash-btn {
+      position:absolute;
+      right: 8px;
+      top: 8px;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      background: #ffefef;
+    }
+
+    .azione {
+      background: green;
+      color: white;
+      margin-top: 10px;
+      padding: 12px;
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 900;
+      letter-spacing: 0.2px;
+    }
+
+    .elimina-tutti {
+      background: red;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      margin-top: 10px;
+      cursor: pointer;
+      width: 100%;
+      font-weight: 900;
+    }
+
+    .footer-actions { padding: 10px; background: transparent; }
+
+    .totale-giornata{
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px dashed #bbb;
+      background: #fff;
+      font-weight: 900;
+    }
+  </style>
 </head>
+
 <body>
+  <h1>Gestione Ordini Hotel</h1>
 
-<h1>Gestione Ordini Hotel</h1>
+  <div class="header">
+    <strong>Numero Tavolo:</strong>
+    <input type="number" id="numeroTavolo" />
+    <button id="btnApriTavolo">Apri Tavolo</button>
+  </div>
 
-<div class="header">
-<strong>Numero Tavolo:</strong>
-<input type="number" id="numeroTavolo" style="font-size:16px; padding:5px; width:80px;">
-<button onclick="selezionaTavolo()">Apri Tavolo</button>
-</div>
+  <div class="container riga">
 
-<div class="container riga">
+    <!-- Riquadro alto: Items -->
+    <div class="items" id="itemsContainer">
+      <!-- qui dentro genero tutto via JS (menu.js) -->
 
-  <!-- Riquadro alto: Items -->
-  <div class="items" id="itemsContainer">
-
-    <!-- Light and Tasty -->
-    <div class="categoria-box light" onclick="toggleProdotti('lightProdotti', this)">Light and Tasty</div>
-    <div id="lightProdotti" class="prodotti-dropdown">
-      <button class="prodotto" onclick="aggiungiProdotto('Bufala',11)">Bufala €11</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Salmone in rosa',14)">Salmone in rosa €14</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Salmon salad',16)">Salmon salad €16</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Insalatone dello chef',15)">Insalatone dello chef €15</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Caesar salad',15)">Caesar salad €15</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Tagliere delle eccellenze',17)">Tagliere delle eccellenze €17</button>
-    </div>
-
-    <!-- MAIN -->
-    <div class="categoria-box main" onclick="toggleProdotti('mainProdotti', this)">MAIN</div>
-    <div id="mainProdotti" class="prodotti-dropdown">
-      <button class="prodotto" onclick="aggiungiProdotto('Tortelli',12)">Tortelli €12</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Lasagna',12)">Lasagna €12</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Tagliatella al ragù',11)">Tagliatella al ragù €11</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Tagliatelle al pomodoro',10)">Tagliatelle al pomodoro €10</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Crema carote e zenzero',9.5)">Crema carote e zenzero €9.50</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Club Sandwich',15)">Club Sandwich €15</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Ossobuco di Manzo',19)">Ossobuco di Manzo €19</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Filetto di Salmone',22)">Filetto di Salmone €22</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Petto di pollo',15)">Petto di pollo €15</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Ribs di Maiale',17)">Ribs di Maiale €17</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Tacchino tonnato',15)">Tacchino tonnato €15</button>
-    </div>
-
-    <!-- CROCCANTELLA -->
-    <div class="categoria-box croccantella" onclick="toggleProdotti('croccantellaProdotti', this)">CROCCANTELLA</div>
-    <div id="croccantellaProdotti" class="prodotti-dropdown">
-      <button class="prodotto" onclick="aggiungiProdotto('Margherita',10)">Margherita €10</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Parma',14)">Parma €14</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Bolognese',13)">Bolognese €13</button>
-    </div>
-
-    <!-- BEVANDE -->
-    <div class="categoria-box bevande" onclick="toggleProdotti('bevandeProdotti', this)">BEVANDE</div>
-    <div id="bevandeProdotti" class="prodotti-dropdown">
-      <button class="prodotto" onclick="aggiungiProdotto('Acqua (0.5)',1.5)">Acqua (0.5) €1.50</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Acqua (0.75)',3)">Acqua (0.75) €3.00</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Vino della casa calice',5)">Vino della casa calice €5.00</button>
-      <button class="prodotto" onclick="aggiungiProdotto('Soft drink',4)">Soft drink €4.00</button>
-    </div>
-
-    <!-- ALTRO -->
-    <div class="categoria-box altro" onclick="toggleProdotti('altroProdotti', this)">ALTRO</div>
-    <div id="altroProdotti" class="prodotti-dropdown">
-      <div id="altroInput">
-        <input type="text" id="altroNome" placeholder="Nome Prodotto">
-        <input type="number" id="altroPrezzo" placeholder="Prezzo">
-        <button onclick="aggiungiProdottoAltro()">Aggiungi</button>
+      <!-- ALTRO (resta qui perché è input manuale) -->
+      <div class="categoria-box altro" data-target="altroProdotti">ALTRO</div>
+      <div id="altroProdotti" class="prodotti-dropdown">
+        <div id="altroInput">
+          <input type="text" id="altroNome" placeholder="Nome Prodotto" />
+          <input type="number" id="altroPrezzo" placeholder="Prezzo" step="0.01" />
+          <button id="btnAltroAggiungi">Aggiungi</button>
+        </div>
       </div>
     </div>
 
+    <!-- Riquadro basso: Tavoli e ordini -->
+    <div class="tavoli-box-container" id="tavoliContainer">
+      <h3>Lista Tavoli</h3>
+    </div>
+
+    <!-- Chiusura Giornaliera -->
+    <div class="footer-actions">
+      <button class="azione" id="btnChiusura">CHIUSURA GIORNALIERA 🎆</button>
+      <button class="elimina-tutti" id="btnEliminaTutti">ELIMINA TUTTI I TAVOLI 😢</button>
+    </div>
+
   </div>
 
-  <!-- Riquadro basso: Tavoli e ordini -->
-  <div class="tavoli-box-container" id="tavoliContainer">
-    <h3>Lista Tavoli</h3>
-  </div>
+  <!-- Menù separato -->
+  <script src="./menu.js"></script>
 
-  <!-- Chiusura Giornaliera -->
-  <div style="padding:10px;">
-    <button class="azione" onclick="chiusuraGiornaliera()">CHIUSURA GIORNALIERA 🎆</button>
-    <button class="elimina-tutti" onclick="eliminaTuttiTavoli()">ELIMINA TUTTI I TAVOLI 😢</button>
-  </div>
+  <script>
+    // ------------------ Stato ------------------
+    let tavoli = {};
+    let tavoloSelezionato = null;
+    let statoTavoli = {}; // true/false se lista ordini del tavolo è aperta
 
-</div>
+    // ------------------ Storage ------------------
+    const STORAGE_KEY = "tavoliHotel_v1";
 
-<script>
-let tavoli = {};
-let tavoloSelezionato = null;
-let statoTavoli = {}; // tiene traccia se la lista ordini del tavolo è aperta
-
-// ---------- Toggle menu dropdown ----------
-function toggleProdotti(id, element) {
-  const prodotti = document.getElementById(id);
-  const allCategorie = document.querySelectorAll('.categoria-box');
-  for (let cat of allCategorie) {
-    if (cat !== element) {
-      cat.classList.remove('active');
-      const otherProdotti = document.getElementById(cat.textContent.trim() + 'Prodotti');
-      if (otherProdotti) otherProdotti.style.display = 'none';
-    }
-  }
-  if (prodotti.style.display === 'none' || prodotti.style.display === '') {
-    element.classList.add('active');
-    prodotti.style.display = 'block';
-  } else {
-    element.classList.remove('active');
-    prodotti.style.display = 'none';
-  }
-}
-
-// ---------- Tavolo ----------
-function selezionaTavolo() {
-  const num = document.getElementById('numeroTavolo').value;
-  if (!num) return alert('Inserisci numero tavolo');
-  if (!tavoli[num]) tavoli[num] = { ordine: {} };
-  tavoloSelezionato = num;
-  renderTavoli();
-}
-
-function aggiungiProdotto(nome, prezzo) {
-  if (!tavoloSelezionato) return alert('Seleziona un tavolo prima');
-  let ord = tavoli[tavoloSelezionato].ordine;
-  if (ord[nome]) ord[nome].q++;
-  else ord[nome] = { p: prezzo, q: 1 };
-  renderTavoli();
-}
-
-function aggiungiProdottoAltro() {
-  const nome = document.getElementById('altroNome').value;
-  const prezzo = parseFloat(document.getElementById('altroPrezzo').value);
-  if (!nome || isNaN(prezzo)) return alert('Inserisci un nome e un prezzo validi');
-  aggiungiProdotto(nome, prezzo);
-  document.getElementById('altroNome').value = '';
-  document.getElementById('altroPrezzo').value = '';
-}
-
-function rimuoviProdotto(tav, prod) {
-  if (tavoli[tav].ordine[prod]) {
-    tavoli[tav].ordine[prod].q--;
-    if (tavoli[tav].ordine[prod].q <= 0) delete tavoli[tav].ordine[prod];
-  }
-  renderTavoli();
-}
-
-function eliminaTavolo(tav) {
-  if (confirm(`Eliminare definitivamente il tavolo ${tav}?`)) {
-    delete tavoli[tav];
-    if (tavoloSelezionato === tav) tavoloSelezionato = null;
-    renderTavoli();
-  }
-}
-
-// ---------- Render Tavoli ----------
-function renderTavoli() {
-  const container = document.getElementById('tavoliContainer');
-  container.innerHTML = '<h3>Lista Tavoli</h3>';
-
-  for (let t in tavoli) {
-    if (statoTavoli[t] === undefined) statoTavoli[t] = false;
-
-    let box = document.createElement('div');
-    box.className = 'tavolo-box';
-    box.style.marginBottom = '10px';
-    box.style.padding = '5px';
-    box.style.border = statoTavoli[t] ? '2px solid #3498db' : '1px solid #ccc';
-    box.style.backgroundColor = statoTavoli[t] ? '#eaf3ff' : '#f0f0f0';
-    box.style.position = 'relative';
-
-    let header = document.createElement('div');
-    header.innerHTML = `<strong>Tavolo ${t}</strong>`;
-    header.style.cursor = 'pointer';
-    header.onclick = () => {
-      statoTavoli[t] = !statoTavoli[t];
-      lista.style.display = statoTavoli[t] ? 'block' : 'none';
-      box.style.border = statoTavoli[t] ? '2px solid #3498db' : '1px solid #ccc';
-      box.style.backgroundColor = statoTavoli[t] ? '#eaf3ff' : '#f0f0f0';
-    };
-    box.appendChild(header);
-
-    let lista = document.createElement('ul');
-    lista.style.display = statoTavoli[t] ? 'block' : 'none';
-
-    // --- Calcolo totale tavolo ---
-    let totaleTavolo = 0;
-    for (let prod in tavoli[t].ordine) {
-      let o = tavoli[t].ordine[prod];
-      totaleTavolo += o.p * o.q;
-
-      let li = document.createElement('li');
-      li.innerHTML = `${prod} x${o.q} €${(o.p*o.q).toFixed(2)} 
-                      <button onclick="rimuoviProdotto('${t}','${prod}')">-</button>`;
-      lista.appendChild(li);
+    function salvaDati() {
+      const payload = { tavoli, tavoloSelezionato, statoTavoli };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     }
 
-    // Mostra totale in fondo
-    let liTotale = document.createElement('li');
-    liTotale.innerHTML = `<strong>Totale Tavolo: €${totaleTavolo.toFixed(2)}</strong>`;
-    lista.appendChild(liTotale);
-
-    box.appendChild(lista);
-
-    // Pulsante elimina tavolo piccolo a destra
-    let btnDel = document.createElement('button');
-    btnDel.textContent = '🗑️';
-    btnDel.style.position = 'absolute';
-    btnDel.style.right = '5px';
-    btnDel.style.top = '5px';
-    btnDel.style.width = '30px';
-    btnDel.style.height = '30px';
-    btnDel.onclick = (e) => {
-      e.stopPropagation();
-      eliminaTavolo(t);
-    };
-    box.appendChild(btnDel);
-
-    container.appendChild(box);
-  }
-}
-
-// ---------- Chiusura Giornaliera ----------
-function chiusuraGiornaliera() {
-  if (Object.keys(tavoli).length === 0) return alert('Nessun tavolo da esportare');
-  let data = new Date();
-  let filename = 'riepilogo_'+data.getFullYear()+'-'+(data.getMonth()+1)+'-'+data.getDate()+'.txt';
-  let contenuto = 'Riepilogo giornaliero ' + data.toLocaleDateString() + '\n\n';
-  for (let t in tavoli) {
-    contenuto += `Tavolo ${t}:\n`;
-    let totaleTavolo = 0;
-    for (let p in tavoli[t].ordine) {
-      let o = tavoli[t].ordine[p];
-      contenuto += `  ${p} x${o.q} €${(o.p*o.q).toFixed(2)}\n`;
-      totaleTavolo += o.p*o.q;
+    function caricaDati() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      try {
+        const payload = JSON.parse(raw);
+        tavoli = payload.tavoli || {};
+        tavoloSelezionato = payload.tavoloSelezionato ?? null;
+        statoTavoli = payload.statoTavoli || {};
+      } catch {
+        // se dati corrotti, riparto pulito
+        tavoli = {};
+        tavoloSelezionato = null;
+        statoTavoli = {};
+      }
     }
-    contenuto += `  Totale Tavolo: €${totaleTavolo.toFixed(2)}\n\n`;
-  }
 
-  // Creazione file
-  let blob = new Blob([contenuto], {type:'text/plain'});
-  let link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = filename;
-  link.click();
+    // ------------------ Utils ------------------
+    function euro(n) {
+      return "€" + Number(n).toFixed(2);
+    }
 
-  // Faccine e fuochi 🎆
-  alert('Chiusura giornaliera completata! 🎆');
-}
+    function sortTavoliKeys(obj) {
+      return Object.keys(obj).sort((a,b) => Number(a) - Number(b));
+    }
 
-// ---------- Eliminazione tutti i tavoli ----------
-function eliminaTuttiTavoli() {
-  if (!confirm('Sicuro di voler eliminare tutti i tavoli?')) return;
-  if (!confirm('MA SEI PROPRIO SICURO? NON SI TORNA INDIETRO 😢')) return;
-  tavoli = {};
-  tavoloSelezionato = null;
-  renderTavoli();
-}
-</script>
+    // ------------------ Costruzione Menu (da menu.js) ------------------
+    function buildMenu() {
+      const itemsContainer = document.getElementById("itemsContainer");
 
+      // Inserisco le categorie del MENU prima del blocco ALTRO già presente
+      // Trovo l'elemento "ALTRO" per inserire prima
+      const altroCat = itemsContainer.querySelector('.categoria-box.altro');
+
+      (window.MENU || []).forEach(cat => {
+        const catDiv = document.createElement("div");
+        catDiv.className = `categoria-box ${cat.cssClass}`;
+        catDiv.dataset.target = cat.id;
+        catDiv.textContent = cat.label;
+
+        const drop = document.createElement("div");
+        drop.id = cat.id;
+        drop.className = "prodotti-dropdown";
+
+        (cat.items || []).forEach(it => {
+          const btn = document.createElement("button");
+          btn.className = "prodotto";
+          btn.type = "button";
+          btn.dataset.name = it.name;
+          btn.dataset.price = it.price;
+          btn.textContent = `${it.name} ${euro(it.price)}`;
+          drop.appendChild(btn);
+        });
+
+        itemsContainer.insertBefore(drop, altroCat);
+        itemsContainer.insertBefore(catDiv, drop);
+      });
+    }
+
+    // ------------------ Toggle categorie robusto ------------------
+    function initCategoryToggle() {
+      document.querySelectorAll(".categoria-box").forEach(box => {
+        box.addEventListener("click", function() {
+          const id = this.dataset.target;
+          const prodotti = document.getElementById(id);
+          if (!prodotti) return;
+
+          // chiudo gli altri
+          document.querySelectorAll(".prodotti-dropdown").forEach(p => {
+            if (p !== prodotti) p.style.display = "none";
+          });
+          document.querySelectorAll(".categoria-box").forEach(c => {
+            if (c !== this) c.classList.remove("active");
+          });
+
+          // toggle questo
+          const isOpen = prodotti.style.display === "block";
+          prodotti.style.display = isOpen ? "none" : "block";
+          this.classList.toggle("active", !isOpen);
+        });
+      });
+    }
+
+    // ------------------ Aggiunta prodotti (event delegation) ------------------
+    function initProductClicks() {
+      document.getElementById("itemsContainer").addEventListener("click", (e) => {
+        const btn = e.target.closest(".prodotto");
+        if (!btn) return;
+
+        const nome = btn.dataset.name;
+        const prezzo = parseFloat(btn.dataset.price);
+        aggiungiProdotto(nome, prezzo);
+      });
+    }
+
+    // ------------------ Tavolo ------------------
+    function selezionaTavolo() {
+      const num = document.getElementById("numeroTavolo").value;
+      if (!num) return alert("Inserisci numero tavolo");
+
+      if (!tavoli[num]) tavoli[num] = { ordine: {} };
+      tavoloSelezionato = String(num);
+
+      // apro automaticamente quel tavolo
+      statoTavoli[tavoloSelezionato] = true;
+
+      salvaDati();
+      renderTavoli();
+    }
+
+    function aggiungiProdotto(nome, prezzo) {
+      if (!tavoloSelezionato) return alert("Seleziona un tavolo prima");
+
+      let ord = tavoli[tavoloSelezionato].ordine;
+      if (ord[nome]) ord[nome].q++;
+      else ord[nome] = { p: prezzo, q: 1 };
+
+      salvaDati();
+      renderTavoli();
+    }
+
+    function aggiungiProdottoAltro() {
+      const nome = document.getElementById("altroNome").value.trim();
+      const prezzo = parseFloat(document.getElementById("altroPrezzo").value);
+
+      if (!nome || isNaN(prezzo)) return alert("Inserisci un nome e un prezzo validi");
+
+      aggiungiProdotto(nome, prezzo);
+
+      document.getElementById("altroNome").value = "";
+      document.getElementById("altroPrezzo").value = "";
+    }
+
+    function rimuoviProdotto(tav, prod) {
+      if (tavoli[tav]?.ordine?.[prod]) {
+        tavoli[tav].ordine[prod].q--;
+        if (tavoli[tav].ordine[prod].q <= 0) delete tavoli[tav].ordine[prod];
+      }
+      salvaDati();
+      renderTavoli();
+    }
+
+    function incrementaProdotto(tav, prod) {
+      if (tavoli[tav]?.ordine?.[prod]) {
+        tavoli[tav].ordine[prod].q++;
+      }
+      salvaDati();
+      renderTavoli();
+    }
+
+    function eliminaTavolo(tav) {
+      if (confirm(`Eliminare definitivamente il tavolo ${tav}?`)) {
+        delete tavoli[tav];
+        delete statoTavoli[tav];
+        if (tavoloSelezionato === tav) tavoloSelezionato = null;
+        salvaDati();
+        renderTavoli();
+      }
+    }
+
+    // ------------------ Render Tavoli + Totale Giornata ------------------
+    function renderTavoli() {
+      const container = document.getElementById("tavoliContainer");
+      container.innerHTML = "<h3>Lista Tavoli</h3>";
+
+      let totaleGiornata = 0;
+
+      const keys = sortTavoliKeys(tavoli);
+
+      for (let t of keys) {
+        if (statoTavoli[t] === undefined) statoTavoli[t] = false;
+
+        const box = document.createElement("div");
+        box.className = "tavolo-box";
+
+        // evidenza tavolo selezionato
+        if (String(tavoloSelezionato) === String(t)) {
+          box.style.outline = "2px solid var(--accent)";
+          box.style.boxShadow = "0 0 14px rgba(52,152,219,0.35)";
+        }
+
+        const header = document.createElement("div");
+        header.className = "tavolo-header";
+
+        const left = document.createElement("div");
+        left.innerHTML = `<strong>Tavolo ${t}</strong>`;
+
+        const right = document.createElement("div");
+        right.className = "pill";
+        right.textContent = statoTavoli[t] ? "APERT0" : "CHIUSO";
+
+        header.appendChild(left);
+        header.appendChild(right);
+
+        const lista = document.createElement("ul");
+        lista.style.display = statoTavoli[t] ? "block" : "none";
+
+        // calcolo totale tavolo
+        let totaleTavolo = 0;
+
+        for (let prod in tavoli[t].ordine) {
+          const o = tavoli[t].ordine[prod];
+          totaleTavolo += o.p * o.q;
+
+          const li = document.createElement("li");
+
+          // testo riga
+          const txt = document.createElement("span");
+          txt.textContent = `${prod} x${o.q} ${euro(o.p * o.q)} `;
+
+          // pulsanti - / +
+          const btnMinus = document.createElement("button");
+          btnMinus.className = "mini-btn minus";
+          btnMinus.textContent = "-";
+          btnMinus.type = "button";
+          btnMinus.addEventListener("click", (e) => {
+            e.stopPropagation();
+            rimuoviProdotto(String(t), prod);
+          });
+
+          const btnPlus = document.createElement("button");
+          btnPlus.className = "mini-btn plus";
+          btnPlus.textContent = "+";
+          btnPlus.type = "button";
+          btnPlus.addEventListener("click", (e) => {
+            e.stopPropagation();
+            incrementaProdotto(String(t), prod);
+          });
+
+          li.appendChild(txt);
+          li.appendChild(btnMinus);
+          li.appendChild(btnPlus);
+          lista.appendChild(li);
+        }
+
+        totaleGiornata += totaleTavolo;
+
+        const liTotale = document.createElement("li");
+        liTotale.innerHTML = `<strong>Totale Tavolo: ${euro(totaleTavolo)}</strong>`;
+        lista.appendChild(liTotale);
+
+        header.addEventListener("click", () => {
+          statoTavoli[t] = !statoTavoli[t];
+          lista.style.display = statoTavoli[t] ? "block" : "none";
+          right.textContent = statoTavoli[t] ? "APERTO" : "CHIUSO";
+          salvaDati();
+        });
+
+        // seleziona tavolo al click (solo sul titolo: qui lo facciamo quando apri tavolo da input)
+        // se vuoi anche "tap to select", dimmelo e lo aggiungo
+
+        box.appendChild(header);
+        box.appendChild(lista);
+
+        const btnDel = document.createElement("button");
+        btnDel.className = "trash-btn";
+        btnDel.type = "button";
+        btnDel.textContent = "🗑️";
+        btnDel.addEventListener("click", (e) => {
+          e.stopPropagation();
+          eliminaTavolo(String(t));
+        });
+        box.appendChild(btnDel);
+
+        container.appendChild(box);
+      }
+
+      // box totale giornata
+      const totaleBox = document.createElement("div");
+      totaleBox.className = "totale-giornata";
+      totaleBox.innerHTML = `Totale Giornaliero: ${euro(totaleGiornata)}`;
+      container.appendChild(totaleBox);
+    }
+
+    // ------------------ Chiusura Giornaliera (txt) ------------------
+    function chiusuraGiornaliera() {
+      if (Object.keys(tavoli).length === 0) return alert("Nessun tavolo da esportare");
+
+      const data = new Date();
+      const filename = `riepilogo_${data.getFullYear()}-${String(data.getMonth()+1).padStart(2,"0")}-${String(data.getDate()).padStart(2,"0")}.txt`;
+
+      let contenuto = "Riepilogo giornaliero " + data.toLocaleDateString() + "\n\n";
+      let totaleGiornata = 0;
+
+      for (let t of sortTavoliKeys(tavoli)) {
+        contenuto += `Tavolo ${t}:\n`;
+        let totaleTavolo = 0;
+
+        for (let p in tavoli[t].ordine) {
+          const o = tavoli[t].ordine[p];
+          contenuto += `  ${p} x${o.q} ${euro(o.p * o.q)}\n`;
+          totaleTavolo += o.p * o.q;
+        }
+
+        contenuto += `  Totale Tavolo: ${euro(totaleTavolo)}\n\n`;
+        totaleGiornata += totaleTavolo;
+      }
+
+      contenuto += `TOTALE GIORNATA: ${euro(totaleGiornata)}\n`;
+
+      const blob = new Blob([contenuto], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+
+      alert("Chiusura giornaliera completata! 🎆");
+    }
+
+    // ------------------ Elimina tutti ------------------
+    function eliminaTuttiTavoli() {
+      if (!confirm("Sicuro di voler eliminare tutti i tavoli?")) return;
+      if (!confirm("MA SEI PROPRIO SICURO? NON SI TORNA INDIETRO 😢")) return;
+
+      tavoli = {};
+      tavoloSelezionato = null;
+      statoTavoli = {};
+      salvaDati();
+      renderTavoli();
+    }
+
+    // ------------------ Init ------------------
+    function init() {
+      caricaDati();
+
+      buildMenu();
+      initCategoryToggle();
+      initProductClicks();
+
+      document.getElementById("btnApriTavolo").addEventListener("click", selezionaTavolo);
+      document.getElementById("btnAltroAggiungi").addEventListener("click", aggiungiProdottoAltro);
+      document.getElementById("btnChiusura").addEventListener("click", chiusuraGiornaliera);
+      document.getElementById("btnEliminaTutti").addEventListener("click", eliminaTuttiTavoli);
+
+      renderTavoli();
+    }
+
+    init();
+  </script>
 </body>
 </html>
