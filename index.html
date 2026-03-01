@@ -12,8 +12,6 @@
       --muted:#fafafa;
       --border:#ddd;
       --accent:#3498db;
-      --danger:#e74c3c;
-      --ok:#27ae60;
       --shadow: 0 6px 16px rgba(0,0,0,0.08);
     }
 
@@ -53,8 +51,10 @@
       background: #111;
       color: white;
       margin-left: 6px;
+      font-weight: 800;
     }
     .header button:hover{ opacity: 0.9; }
+    .header button:disabled{ opacity: 0.55; cursor:not-allowed; }
 
     .container { display: flex; flex-direction: column; height: calc(100vh - 70px); }
     .riga { display:flex; flex:1; flex-direction:column; }
@@ -75,7 +75,7 @@
       border-radius: 10px;
       color: white;
       cursor: pointer;
-      font-weight: 800;
+      font-weight: 900;
       letter-spacing: 0.3px;
       transition: 0.2s;
       user-select: none;
@@ -104,7 +104,7 @@
       cursor: pointer;
       background: var(--accent);
       color: white;
-      font-weight: 700;
+      font-weight: 800;
       transition: 0.15s;
     }
     .prodotto:hover { background: #217dbb; }
@@ -123,8 +123,9 @@
       background: #111;
       color: #fff;
       cursor: pointer;
-      font-weight: 700;
+      font-weight: 900;
     }
+    #altroInput button:disabled{ opacity: 0.55; cursor:not-allowed; }
 
     .tavolo-box {
       padding: 10px;
@@ -149,7 +150,7 @@
 
     .pill {
       font-size: 12px;
-      font-weight: 800;
+      font-weight: 900;
       padding: 4px 8px;
       border-radius: 999px;
       background: #eee;
@@ -164,11 +165,12 @@
       border-radius: 8px;
       border: none;
       cursor: pointer;
-      font-weight: 800;
+      font-weight: 900;
     }
     .mini-btn.minus { background:#333; color:#fff; }
     .mini-btn.plus  { background:#0f7a2f; color:#fff; margin-left:6px; }
     .mini-btn:hover { opacity: 0.92; }
+    .mini-btn:disabled{ opacity: 0.55; cursor:not-allowed; }
 
     .trash-btn {
       position:absolute;
@@ -181,6 +183,7 @@
       cursor: pointer;
       background: #ffefef;
     }
+    .trash-btn:disabled{ opacity: 0.55; cursor:not-allowed; }
 
     .azione {
       background: green;
@@ -191,7 +194,7 @@
       border: none;
       border-radius: 12px;
       cursor: pointer;
-      font-weight: 900;
+      font-weight: 950;
       letter-spacing: 0.2px;
     }
 
@@ -204,10 +207,11 @@
       margin-top: 10px;
       cursor: pointer;
       width: 100%;
-      font-weight: 900;
+      font-weight: 950;
     }
 
     .footer-actions { padding: 10px; background: transparent; }
+    button:disabled{ opacity:0.55; cursor:not-allowed; }
 
     .totale-giornata{
       margin-top: 12px;
@@ -215,7 +219,56 @@
       border-radius: 12px;
       border: 1px dashed #bbb;
       background: #fff;
-      font-weight: 900;
+      font-weight: 950;
+    }
+
+    /* ------------------ OVERLAY SPETTACOLO (isolato) ------------------ */
+    #overlaySpettacolo {
+      position: fixed;
+      inset: 0;
+      display: none;
+      background: rgba(0,0,0,0.10);
+      z-index: 9999;
+      pointer-events: all;
+      overflow: hidden;
+    }
+    #canvasSpettacolo {
+      position:absolute;
+      top:0;
+      left:0;
+    }
+
+    .spettacolo-scritta{
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform: translate(-50%,-50%);
+      font-size: clamp(36px, 7vw, 76px);
+      font-weight: 1000;
+      color: #ff2b2b;
+      text-shadow: 3px 3px 10px rgba(0,0,0,0.75);
+      letter-spacing: 1px;
+      user-select:none;
+      white-space: nowrap;
+    }
+
+    .omino {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      animation: ballo 0.45s infinite alternate ease-in-out;
+      will-change: transform, top;
+      user-select: none;
+    }
+
+    @keyframes ballo {
+      0%   { transform: translateY(0px) rotate(-10deg); }
+      50%  { transform: translateY(-8px) rotate(10deg); }
+      100% { transform: translateY(0px) rotate(-10deg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .omino { animation: none; }
     }
   </style>
 </head>
@@ -233,9 +286,9 @@
 
     <!-- Riquadro alto: Items -->
     <div class="items" id="itemsContainer">
-      <!-- qui dentro genero tutto via JS (menu.js) -->
+      <!-- menu generato via JS (menu.js) -->
 
-      <!-- ALTRO (resta qui perché è input manuale) -->
+      <!-- ALTRO -->
       <div class="categoria-box altro" data-target="altroProdotti">ALTRO</div>
       <div id="altroProdotti" class="prodotti-dropdown">
         <div id="altroInput">
@@ -256,7 +309,12 @@
       <button class="azione" id="btnChiusura">CHIUSURA GIORNALIERA 🎆</button>
       <button class="elimina-tutti" id="btnEliminaTutti">ELIMINA TUTTI I TAVOLI 😢</button>
     </div>
+  </div>
 
+  <!-- Overlay animazione -->
+  <div id="overlaySpettacolo" aria-hidden="true">
+    <canvas id="canvasSpettacolo"></canvas>
+    <div class="spettacolo-scritta" id="scrittaSpettacolo">SI VA A CASA!</div>
   </div>
 
   <!-- Menù separato -->
@@ -266,7 +324,7 @@
     // ------------------ Stato ------------------
     let tavoli = {};
     let tavoloSelezionato = null;
-    let statoTavoli = {}; // true/false se lista ordini del tavolo è aperta
+    let statoTavoli = {};
 
     // ------------------ Storage ------------------
     const STORAGE_KEY = "tavoliHotel_v1";
@@ -285,7 +343,6 @@
         tavoloSelezionato = payload.tavoloSelezionato ?? null;
         statoTavoli = payload.statoTavoli || {};
       } catch {
-        // se dati corrotti, riparto pulito
         tavoli = {};
         tavoloSelezionato = null;
         statoTavoli = {};
@@ -293,20 +350,12 @@
     }
 
     // ------------------ Utils ------------------
-    function euro(n) {
-      return "€" + Number(n).toFixed(2);
-    }
-
-    function sortTavoliKeys(obj) {
-      return Object.keys(obj).sort((a,b) => Number(a) - Number(b));
-    }
+    function euro(n) { return "€" + Number(n).toFixed(2); }
+    function sortTavoliKeys(obj) { return Object.keys(obj).sort((a,b) => Number(a) - Number(b)); }
 
     // ------------------ Costruzione Menu (da menu.js) ------------------
     function buildMenu() {
       const itemsContainer = document.getElementById("itemsContainer");
-
-      // Inserisco le categorie del MENU prima del blocco ALTRO già presente
-      // Trovo l'elemento "ALTRO" per inserire prima
       const altroCat = itemsContainer.querySelector('.categoria-box.altro');
 
       (window.MENU || []).forEach(cat => {
@@ -342,7 +391,6 @@
           const prodotti = document.getElementById(id);
           if (!prodotti) return;
 
-          // chiudo gli altri
           document.querySelectorAll(".prodotti-dropdown").forEach(p => {
             if (p !== prodotti) p.style.display = "none";
           });
@@ -350,7 +398,6 @@
             if (c !== this) c.classList.remove("active");
           });
 
-          // toggle questo
           const isOpen = prodotti.style.display === "block";
           prodotti.style.display = isOpen ? "none" : "block";
           this.classList.toggle("active", !isOpen);
@@ -358,27 +405,24 @@
       });
     }
 
-    // ------------------ Aggiunta prodotti (event delegation) ------------------
+    // ------------------ Event delegation: click prodotti ------------------
     function initProductClicks() {
       document.getElementById("itemsContainer").addEventListener("click", (e) => {
         const btn = e.target.closest(".prodotto");
         if (!btn) return;
-
         const nome = btn.dataset.name;
         const prezzo = parseFloat(btn.dataset.price);
         aggiungiProdotto(nome, prezzo);
       });
     }
 
-    // ------------------ Tavolo ------------------
+    // ------------------ Tavoli ------------------
     function selezionaTavolo() {
       const num = document.getElementById("numeroTavolo").value;
       if (!num) return alert("Inserisci numero tavolo");
 
       if (!tavoli[num]) tavoli[num] = { ordine: {} };
       tavoloSelezionato = String(num);
-
-      // apro automaticamente quel tavolo
       statoTavoli[tavoloSelezionato] = true;
 
       salvaDati();
@@ -388,7 +432,7 @@
     function aggiungiProdotto(nome, prezzo) {
       if (!tavoloSelezionato) return alert("Seleziona un tavolo prima");
 
-      let ord = tavoli[tavoloSelezionato].ordine;
+      const ord = tavoli[tavoloSelezionato].ordine;
       if (ord[nome]) ord[nome].q++;
       else ord[nome] = { p: prezzo, q: 1 };
 
@@ -399,11 +443,9 @@
     function aggiungiProdottoAltro() {
       const nome = document.getElementById("altroNome").value.trim();
       const prezzo = parseFloat(document.getElementById("altroPrezzo").value);
-
       if (!nome || isNaN(prezzo)) return alert("Inserisci un nome e un prezzo validi");
 
       aggiungiProdotto(nome, prezzo);
-
       document.getElementById("altroNome").value = "";
       document.getElementById("altroPrezzo").value = "";
     }
@@ -435,13 +477,12 @@
       }
     }
 
-    // ------------------ Render Tavoli + Totale Giornata ------------------
+    // ------------------ Render tavoli + totale giorno ------------------
     function renderTavoli() {
       const container = document.getElementById("tavoliContainer");
       container.innerHTML = "<h3>Lista Tavoli</h3>";
 
       let totaleGiornata = 0;
-
       const keys = sortTavoliKeys(tavoli);
 
       for (let t of keys) {
@@ -450,7 +491,6 @@
         const box = document.createElement("div");
         box.className = "tavolo-box";
 
-        // evidenza tavolo selezionato
         if (String(tavoloSelezionato) === String(t)) {
           box.style.outline = "2px solid var(--accent)";
           box.style.boxShadow = "0 0 14px rgba(52,152,219,0.35)";
@@ -464,7 +504,7 @@
 
         const right = document.createElement("div");
         right.className = "pill";
-        right.textContent = statoTavoli[t] ? "APERT0" : "CHIUSO";
+        right.textContent = statoTavoli[t] ? "APERTO" : "CHIUSO";
 
         header.appendChild(left);
         header.appendChild(right);
@@ -472,7 +512,6 @@
         const lista = document.createElement("ul");
         lista.style.display = statoTavoli[t] ? "block" : "none";
 
-        // calcolo totale tavolo
         let totaleTavolo = 0;
 
         for (let prod in tavoli[t].ordine) {
@@ -480,16 +519,13 @@
           totaleTavolo += o.p * o.q;
 
           const li = document.createElement("li");
-
-          // testo riga
           const txt = document.createElement("span");
           txt.textContent = `${prod} x${o.q} ${euro(o.p * o.q)} `;
 
-          // pulsanti - / +
           const btnMinus = document.createElement("button");
           btnMinus.className = "mini-btn minus";
-          btnMinus.textContent = "-";
           btnMinus.type = "button";
+          btnMinus.textContent = "-";
           btnMinus.addEventListener("click", (e) => {
             e.stopPropagation();
             rimuoviProdotto(String(t), prod);
@@ -497,8 +533,8 @@
 
           const btnPlus = document.createElement("button");
           btnPlus.className = "mini-btn plus";
-          btnPlus.textContent = "+";
           btnPlus.type = "button";
+          btnPlus.textContent = "+";
           btnPlus.addEventListener("click", (e) => {
             e.stopPropagation();
             incrementaProdotto(String(t), prod);
@@ -523,12 +559,6 @@
           salvaDati();
         });
 
-        // seleziona tavolo al click (solo sul titolo: qui lo facciamo quando apri tavolo da input)
-        // se vuoi anche "tap to select", dimmelo e lo aggiungo
-
-        box.appendChild(header);
-        box.appendChild(lista);
-
         const btnDel = document.createElement("button");
         btnDel.className = "trash-btn";
         btnDel.type = "button";
@@ -537,21 +567,25 @@
           e.stopPropagation();
           eliminaTavolo(String(t));
         });
-        box.appendChild(btnDel);
 
+        box.appendChild(header);
+        box.appendChild(lista);
+        box.appendChild(btnDel);
         container.appendChild(box);
       }
 
-      // box totale giornata
       const totaleBox = document.createElement("div");
       totaleBox.className = "totale-giornata";
       totaleBox.innerHTML = `Totale Giornaliero: ${euro(totaleGiornata)}`;
       container.appendChild(totaleBox);
     }
 
-    // ------------------ Chiusura Giornaliera (txt) ------------------
-    function chiusuraGiornaliera() {
-      if (Object.keys(tavoli).length === 0) return alert("Nessun tavolo da esportare");
+    // ------------------ Export TXT (pure function) ------------------
+    function generaFileChiusuraTxt() {
+      if (Object.keys(tavoli).length === 0) {
+        alert("Nessun tavolo da esportare");
+        return false;
+      }
 
       const data = new Date();
       const filename = `riepilogo_${data.getFullYear()}-${String(data.getMonth()+1).padStart(2,"0")}-${String(data.getDate()).padStart(2,"0")}.txt`;
@@ -581,7 +615,209 @@
       link.download = filename;
       link.click();
 
-      alert("Chiusura giornaliera completata! 🎆");
+      return true;
+    }
+
+    // ------------------ Animazione spettacolo (clean) ------------------
+    function createRandomColorHex() {
+      return Math.floor(Math.random() * 16777215).toString(16).padStart(6, "0");
+    }
+
+    function startSpettacolo() {
+      const overlay = document.getElementById("overlaySpettacolo");
+      const canvas = document.getElementById("canvasSpettacolo");
+      const ctx = canvas.getContext("2d");
+
+      // reset display + transform
+      overlay.style.display = "block";
+      overlay.style.transform = "translate(0px, 0px)";
+
+      // resize
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resize();
+
+      const state = {
+        running: true,
+        fuochi: [],
+        particelle: [],
+        omini: [],
+        intervalId: null,
+        rafId: null,
+        onResize: resize
+      };
+
+      window.addEventListener("resize", state.onResize);
+
+      function creaOmini() {
+        const count = 36;
+        for (let i = 0; i < count; i++) {
+          const omino = document.createElement("div");
+          omino.className = "omino";
+          omino.style.left = Math.random() * window.innerWidth + "px";
+          omino.style.top = Math.random() * window.innerHeight + "px";
+
+          const shirt = createRandomColorHex();
+          omino.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 16 16">
+              <rect x="6" y="0" width="4" height="4" fill="#ffcc99"/>
+              <rect x="4" y="4" width="8" height="6" fill="#${shirt}"/>
+              <rect x="4" y="10" width="3" height="6" fill="#663300"/>
+              <rect x="9" y="10" width="3" height="6" fill="#663300"/>
+            </svg>
+          `;
+          overlay.appendChild(omino);
+          state.omini.push(omino);
+        }
+      }
+
+      function creaFuoco() {
+        const x = Math.random() * canvas.width;
+        const y = canvas.height;
+        const colore = Math.random() * 360;
+        state.fuochi.push({ x, y, vy: Math.random() * -10 - 6, esploso: false, colore });
+      }
+
+      function creaParticelle(x, y, colore) {
+        const count = 80;
+        for (let i = 0; i < count; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = Math.random() * 6 + 2;
+          state.particelle.push({
+            x, y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            alpha: 1,
+            fade: Math.random() * 0.03 + 0.01,
+            color: colore
+          });
+        }
+      }
+
+      function jumpOminiNear(x, y) {
+        state.omini.forEach(o => {
+          const ox = parseFloat(o.style.left);
+          const oy = parseFloat(o.style.top);
+          if (Math.abs(ox - x) < 100 && Math.abs(oy - y) < 100) {
+            o.style.transition = "top 0.18s";
+            o.style.top = (oy - 30 + Math.random() * 20) + "px";
+          }
+        });
+      }
+
+      function animate() {
+        if (!state.running) return;
+
+        // shake leggero
+        const sx = (Math.random() - 0.5) * 6;
+        const sy = (Math.random() - 0.5) * 6;
+        overlay.style.transform = `translate(${sx}px, ${sy}px)`;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // fuochi
+        for (let i = state.fuochi.length - 1; i >= 0; i--) {
+          const f = state.fuochi[i];
+          f.y += f.vy;
+          f.vy += 0.2;
+
+          ctx.beginPath();
+          ctx.arc(f.x, f.y, 4, 0, Math.PI * 2);
+          ctx.fillStyle = `hsl(${f.colore}, 100%, 50%)`;
+          ctx.fill();
+
+          if (!f.esploso && f.vy >= 0) {
+            f.esploso = true;
+            creaParticelle(f.x, f.y, f.colore);
+            jumpOminiNear(f.x, f.y);
+            state.fuochi.splice(i, 1);
+          }
+        }
+
+        // particelle
+        for (let i = state.particelle.length - 1; i >= 0; i--) {
+          const p = state.particelle[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.1;
+          p.alpha -= p.fade;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(${p.color}, 100%, 50%, ${p.alpha})`;
+          ctx.fill();
+
+          if (p.alpha <= 0) state.particelle.splice(i, 1);
+        }
+
+        state.rafId = requestAnimationFrame(animate);
+      }
+
+      creaOmini();
+      state.intervalId = setInterval(creaFuoco, 420);
+      state.rafId = requestAnimationFrame(animate);
+
+      return state;
+    }
+
+    function stopSpettacolo(state) {
+      const overlay = document.getElementById("overlaySpettacolo");
+      const canvas = document.getElementById("canvasSpettacolo");
+      const ctx = canvas.getContext("2d");
+
+      if (!state) {
+        overlay.style.display = "none";
+        overlay.style.transform = "translate(0px, 0px)";
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        return;
+      }
+
+      state.running = false;
+      if (state.intervalId) clearInterval(state.intervalId);
+      if (state.rafId) cancelAnimationFrame(state.rafId);
+      window.removeEventListener("resize", state.onResize);
+
+      // rimuove omini
+      state.omini.forEach(o => o.remove());
+
+      // pulizia canvas + overlay
+      overlay.style.transform = "translate(0px, 0px)";
+      overlay.style.display = "none";
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+    }
+
+    // ------------------ UI Lock ------------------
+    function setUiDisabled(disabled) {
+      document.getElementById("btnApriTavolo").disabled = disabled;
+      document.getElementById("btnAltroAggiungi").disabled = disabled;
+      document.getElementById("btnChiusura").disabled = disabled;
+      document.getElementById("btnEliminaTutti").disabled = disabled;
+      document.querySelectorAll(".prodotto, .mini-btn, .trash-btn").forEach(el => el.disabled = disabled);
+    }
+
+    // ------------------ Chiusura Giornaliera con animazione ------------------
+    async function chiusuraGiornalieraConSpettacolo() {
+      // precheck prima di far casino
+      if (Object.keys(tavoli).length === 0) return alert("Nessun tavolo da esportare");
+
+      setUiDisabled(true);
+
+      let spettacoloState = null;
+      try {
+        spettacoloState = startSpettacolo();
+
+        // dopo un po' esporta (senza sapere durata precisa: scelgo un tempo "giusto")
+        await new Promise(res => setTimeout(res, 3500));
+        generaFileChiusuraTxt();
+
+        // lascia respirare ancora un attimo e chiudi
+        await new Promise(res => setTimeout(res, 1100));
+      } finally {
+        stopSpettacolo(spettacoloState);
+        setUiDisabled(false);
+      }
     }
 
     // ------------------ Elimina tutti ------------------
@@ -606,7 +842,7 @@
 
       document.getElementById("btnApriTavolo").addEventListener("click", selezionaTavolo);
       document.getElementById("btnAltroAggiungi").addEventListener("click", aggiungiProdottoAltro);
-      document.getElementById("btnChiusura").addEventListener("click", chiusuraGiornaliera);
+      document.getElementById("btnChiusura").addEventListener("click", chiusuraGiornalieraConSpettacolo);
       document.getElementById("btnEliminaTutti").addEventListener("click", eliminaTuttiTavoli);
 
       renderTavoli();
