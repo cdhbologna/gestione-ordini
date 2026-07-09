@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>Gestione Ordini Hotel · V1</title>
+  <title>Gestione Ordini Hotel · V1.1</title>
   <style>
     :root {
       --bg: #11100f;
@@ -18,6 +18,7 @@
       --danger: #9e2f25;
       --danger-dark: #762018;
       --ok: #286b42;
+      --warn: #b87416;
       --shadow: 0 18px 46px rgba(0,0,0,0.28);
       --radius: 18px;
       --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -109,6 +110,7 @@
       background: var(--danger);
       box-shadow: 0 0 0 4px rgba(158,47,37,0.16);
     }
+
     .active-table-chip.has-table .chip-dot {
       background: var(--ok);
       box-shadow: 0 0 0 4px rgba(40,107,66,0.18);
@@ -168,6 +170,7 @@
     }
 
     .menu-tab:hover { transform: translateY(-1px); }
+
     .menu-tab.active {
       background: linear-gradient(135deg, #2b2118, #11100f);
       color: #fff;
@@ -190,6 +193,7 @@
       font-weight: 750;
       line-height: 1.25;
     }
+
     .menu-tab.active span { color: rgba(255,255,255,0.68); }
 
     .toolbar {
@@ -209,6 +213,7 @@
       outline: none;
       color: var(--ink);
     }
+
     .search-box:focus, .table-input:focus, .custom-input:focus {
       border-color: rgba(179,122,53,0.85);
       box-shadow: 0 0 0 4px rgba(179,122,53,0.14);
@@ -226,12 +231,14 @@
       background: #171411;
       min-height: 44px;
     }
+
     .btn:hover { opacity: 0.94; }
     .btn:active { transform: scale(0.98); }
     .btn.gold { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); }
     .btn.danger { background: linear-gradient(135deg, var(--danger), var(--danger-dark)); }
     .btn.light { background: #fff; color: var(--ink); border: 1px solid var(--line); }
     .btn.ok { background: linear-gradient(135deg, #2f7b4a, #1c5632); }
+    .btn.warn { background: linear-gradient(135deg, #c88722, #8a5513); }
     .btn:disabled { opacity: 0.48; cursor: not-allowed; transform: none; }
 
     .section-strip {
@@ -290,6 +297,36 @@
       white-space: nowrap;
     }
 
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      font-size: 11px;
+      font-weight: 1000;
+      text-transform: uppercase;
+      letter-spacing: 0.35px;
+      border-radius: 999px;
+      padding: 6px 9px;
+      background: rgba(32,27,22,0.07);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .status-badge.sent {
+      background: rgba(40,107,66,0.12);
+      color: var(--ok);
+    }
+
+    .status-badge.dirty {
+      background: rgba(184,116,22,0.14);
+      color: var(--warn);
+    }
+
+    .status-badge.empty {
+      background: rgba(32,27,22,0.06);
+      color: var(--muted);
+    }
+
     .products-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -310,7 +347,12 @@
       transition: 0.14s ease;
       text-align: left;
     }
-    .product-card:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,0.10); }
+
+    .product-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.10);
+    }
+
     .product-card:active { transform: scale(0.985); }
 
     .product-name {
@@ -398,9 +440,18 @@
       justify-content: space-between;
       gap: 10px;
       margin-bottom: 8px;
+      flex-wrap: wrap;
     }
 
     .active-order-title strong { font-size: 16px; }
+
+    .status-note {
+      margin: 8px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 800;
+      line-height: 1.35;
+    }
 
     .order-line {
       display: grid;
@@ -410,10 +461,21 @@
       padding: 10px 0;
       border-top: 1px solid rgba(32,27,22,0.12);
     }
+
     .order-line:first-child { border-top: 0; }
 
-    .line-name { font-weight: 900; font-size: 14px; line-height: 1.2; }
-    .line-sub { color: var(--muted); font-size: 12px; font-weight: 700; margin-top: 3px; }
+    .line-name {
+      font-weight: 900;
+      font-size: 14px;
+      line-height: 1.2;
+    }
+
+    .line-sub {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 3px;
+    }
 
     .qty-controls {
       display: flex;
@@ -432,6 +494,7 @@
       cursor: pointer;
       background: #171411;
     }
+
     .qty-btn.minus { background: var(--danger); }
     .qty-btn.plus { background: var(--ok); }
 
@@ -455,7 +518,21 @@
       display: grid;
       gap: 10px;
     }
-    .table-card.active { outline: 3px solid rgba(179,122,53,0.30); border-color: rgba(179,122,53,0.55); }
+
+    .table-card.active {
+      outline: 3px solid rgba(179,122,53,0.30);
+      border-color: rgba(179,122,53,0.55);
+    }
+
+    .table-card.sent {
+      border-color: rgba(40,107,66,0.34);
+      background: linear-gradient(180deg, #fff, rgba(40,107,66,0.05));
+    }
+
+    .table-card.dirty {
+      border-color: rgba(184,116,22,0.42);
+      background: linear-gradient(180deg, #fff, rgba(184,116,22,0.07));
+    }
 
     .table-card-top {
       display: grid;
@@ -464,9 +541,23 @@
       align-items: center;
     }
 
-    .table-name { font-size: 18px; font-weight: 1000; }
-    .table-meta { color: var(--muted); font-size: 12px; font-weight: 750; margin-top: 3px; }
-    .table-total { font-weight: 1000; font-size: 18px; white-space: nowrap; }
+    .table-name {
+      font-size: 18px;
+      font-weight: 1000;
+    }
+
+    .table-meta {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+      margin-top: 3px;
+    }
+
+    .table-total {
+      font-weight: 1000;
+      font-size: 18px;
+      white-space: nowrap;
+    }
 
     .table-actions {
       display: grid;
@@ -504,6 +595,7 @@
       justify-content: center;
       padding: 18px;
     }
+
     .modal-backdrop.show { display: flex; }
 
     .modal {
@@ -520,17 +612,36 @@
       background: #171411;
       color: #fff;
     }
-    .modal-head h3 { margin: 0; font-size: 22px; }
-    .modal-head p { margin: 7px 0 0; color: rgba(255,255,255,0.68); font-weight: 750; }
 
-    .modal-body { padding: 18px; display: grid; gap: 12px; }
-    .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .modal-head h3 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .modal-head p {
+      margin: 7px 0 0;
+      color: rgba(255,255,255,0.68);
+      font-weight: 750;
+    }
+
+    .modal-body {
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
 
     .quick-tables {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
     }
+
     .quick-table-btn {
       border: 1px solid var(--line);
       background: #fff;
@@ -561,7 +672,11 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
 
     #overlaySpettacolo {
       position: fixed;
@@ -572,7 +687,12 @@
       pointer-events: none;
       overflow: hidden;
     }
-    #canvasSpettacolo { position: absolute; inset: 0; }
+
+    #canvasSpettacolo {
+      position: absolute;
+      inset: 0;
+    }
+
     .spettacolo-scritta {
       position: absolute;
       top: 50%;
@@ -614,17 +734,18 @@
     }
   </style>
 </head>
+
 <body>
   <div class="app-shell">
     <header class="topbar">
       <div class="topbar-inner">
         <div class="brand">
           <div class="brand-title">Gestione Ordini Hotel</div>
-          <div class="brand-subtitle">Bistro · Bar · Birra & Pizza · salvataggio locale automatico</div>
+          <div class="brand-subtitle">Bistro · Bar · Birra & Pizza · invio singolo tavolo · salvataggio locale</div>
         </div>
         <button class="active-table-chip" id="activeTableChip" type="button" title="Cambia tavolo/camera">
           <span class="chip-dot"></span>
-          <span id="activeTableLabel">Nessun tavolo</span>
+          <span id="activeTableLabel">Nessun tavolo/camera</span>
         </button>
       </div>
     </header>
@@ -633,12 +754,15 @@
       <section class="panel menu-panel">
         <div class="panel-head">
           <div class="menu-tabs" id="menuTabs"></div>
+
           <div class="toolbar">
             <input class="search-box" id="searchInput" type="search" placeholder="Cerca prodotto nel menu selezionato..." autocomplete="off" />
             <button class="btn gold" id="customItemBtn" type="button">+ Altro</button>
           </div>
+
           <div class="section-strip" id="sectionStrip"></div>
         </div>
+
         <div class="content-scroll" id="productsArea"></div>
       </section>
 
@@ -648,10 +772,12 @@
             <h2>Ordini attivi</h2>
             <button class="btn light" id="changeTableBtn" type="button">Tavolo</button>
           </div>
+
           <div class="table-controls">
-            <input class="table-input" id="tableInput" type="text" inputmode="numeric" placeholder="Numero tavolo/camera" />
+            <input class="table-input" id="tableInput" type="text" inputmode="text" placeholder="Es. 12, 204, BAR1, ASPORTO" />
             <button class="btn ok" id="selectTableBtn" type="button">Apri</button>
           </div>
+
           <div class="totals-row">
             <div class="total-card">
               <div class="total-label">Tavolo attivo</div>
@@ -663,10 +789,12 @@
             </div>
           </div>
         </div>
+
         <div class="content-scroll">
           <div id="activeOrderBox"></div>
           <div id="tableList" class="table-list"></div>
         </div>
+
         <div class="footer-actions">
           <button class="btn gold" id="closeDayBtn" type="button">Chiusura giornaliera</button>
           <button class="btn danger" id="deleteAllBtn" type="button">Elimina tutto</button>
@@ -681,9 +809,12 @@
         <h3 id="tableModalTitle">Scegli tavolo/camera</h3>
         <p id="tableModalText">Prima scegli dove caricare questo ordine.</p>
       </div>
+
       <div class="modal-body">
-        <input class="table-input" id="modalTableInput" type="text" inputmode="numeric" placeholder="Es. 12, 204, BAR1" />
+        <input class="table-input" id="modalTableInput" type="text" inputmode="text" placeholder="Es. 12, 204, BAR1, ASPORTO" />
+
         <div class="quick-tables" id="quickTables"></div>
+
         <div class="modal-actions">
           <button class="btn light" id="cancelTableModalBtn" type="button">Annulla</button>
           <button class="btn ok" id="confirmTableModalBtn" type="button">Conferma</button>
@@ -698,9 +829,11 @@
         <h3 id="customModalTitle">Aggiungi prodotto libero</h3>
         <p>Per extra, correzioni, prodotti fuori menu. Pulito, rapido, senza fare il giocoliere.</p>
       </div>
+
       <div class="modal-body">
         <input class="custom-input" id="customNameInput" type="text" placeholder="Nome prodotto" />
         <input class="custom-input" id="customPriceInput" type="number" step="0.01" min="0" placeholder="Prezzo" />
+
         <div class="modal-actions">
           <button class="btn light" id="cancelCustomBtn" type="button">Annulla</button>
           <button class="btn ok" id="confirmCustomBtn" type="button">Aggiungi</button>
@@ -716,7 +849,8 @@
 
   <div class="toast" id="toast"></div>
 
-  <script src="./menu-data.js"></script>
+  <script src="menu-data.js?v=11"></script>
+
   <script>
     const STORAGE_KEY = "hotel_orders_v2";
 
@@ -732,20 +866,62 @@
     const $ = (id) => document.getElementById(id);
 
     function euro(value) {
-      return new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(Number(value || 0));
+      return new Intl.NumberFormat("it-IT", {
+        style: "currency",
+        currency: "EUR"
+      }).format(Number(value || 0));
     }
 
     function nowStamp() {
       return new Date().toISOString();
     }
 
+    function formatDateTime(iso) {
+      if (!iso) return "";
+      const date = new Date(iso);
+      if (Number.isNaN(date.getTime())) return "";
+      return date.toLocaleString("it-IT", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function formatTime(iso) {
+      if (!iso) return "--:--";
+      const date = new Date(iso);
+      if (Number.isNaN(date.getTime())) return "--:--";
+      return date.toLocaleTimeString("it-IT", {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
     function normalizeTableId(value) {
-      return String(value || "").trim().replace(/\s+/g, " ").toUpperCase();
+      return String(value || "")
+        .trim()
+        .replace(/\s+/g, " ")
+        .toUpperCase();
+    }
+
+    function displayTableName(tableId) {
+      return `Tavolo/Camera ${tableId}`;
+    }
+
+    function safeFilePart(value) {
+      return String(value || "tavolo")
+        .trim()
+        .replace(/\s+/g, "_")
+        .replace(/[^a-zA-Z0-9_-]/g, "_")
+        .slice(0, 40) || "tavolo";
     }
 
     function sortedTableIds() {
       return Object.keys(state.orders).sort((a, b) => {
-        const na = Number(a), nb = Number(b);
+        const na = Number(a);
+        const nb = Number(b);
         if (!Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
         return a.localeCompare(b, "it", { numeric: true });
       });
@@ -755,41 +931,206 @@
       return `${item.name}__${Number(item.price).toFixed(2)}`;
     }
 
-    function tableItemCount(tableId) {
+    function ensureTableShape(tableId) {
+      if (!tableId) return null;
+
+      if (!state.orders[tableId]) {
+        state.orders[tableId] = {
+          items: {},
+          createdAt: nowStamp(),
+          updatedAt: nowStamp()
+        };
+      }
+
       const table = state.orders[tableId];
-      if (!table) return 0;
-      return Object.values(table.items).reduce((sum, item) => sum + item.qty, 0);
+
+      if (!table.items || typeof table.items !== "object") table.items = {};
+      if (!table.createdAt) table.createdAt = nowStamp();
+      if (!table.updatedAt) table.updatedAt = table.createdAt;
+
+      Object.keys(table.items).forEach(key => {
+        const item = table.items[key];
+        item.name = String(item.name || "Prodotto");
+        item.price = Number(item.price || 0);
+        item.qty = Number(item.qty || 0);
+        if (item.qty <= 0) delete table.items[key];
+      });
+
+      if (table.sentSnapshot && !Array.isArray(table.sentSnapshot)) {
+        table.sentSnapshot = [];
+      }
+
+      return table;
+    }
+
+    function migrateOrders() {
+      sortedTableIds().forEach(tableId => ensureTableShape(tableId));
+    }
+
+    function currentItemsArray(tableId) {
+      const table = ensureTableShape(tableId);
+      if (!table) return [];
+
+      return Object.values(table.items)
+        .filter(item => Number(item.qty) > 0)
+        .map(item => ({
+          name: String(item.name),
+          price: Number(item.price),
+          qty: Number(item.qty)
+        }))
+        .sort((a, b) => {
+          const nameCompare = a.name.localeCompare(b.name, "it", { numeric: true });
+          if (nameCompare !== 0) return nameCompare;
+          return a.price - b.price;
+        });
+    }
+
+    function snapshotItemsArray(tableId) {
+      const table = state.orders[tableId];
+      if (!table || !Array.isArray(table.sentSnapshot)) return [];
+
+      return table.sentSnapshot
+        .filter(item => Number(item.qty) > 0)
+        .map(item => ({
+          name: String(item.name),
+          price: Number(item.price),
+          qty: Number(item.qty)
+        }))
+        .sort((a, b) => {
+          const nameCompare = a.name.localeCompare(b.name, "it", { numeric: true });
+          if (nameCompare !== 0) return nameCompare;
+          return a.price - b.price;
+        });
+    }
+
+    function totalFromItems(items) {
+      return items.reduce((sum, item) => {
+        return sum + Number(item.price || 0) * Number(item.qty || 0);
+      }, 0);
+    }
+
+    function tableItemCount(tableId) {
+      return currentItemsArray(tableId).reduce((sum, item) => sum + item.qty, 0);
+    }
+
+    function snapshotItemCount(tableId) {
+      return snapshotItemsArray(tableId).reduce((sum, item) => sum + item.qty, 0);
     }
 
     function tableTotal(tableId) {
+      return totalFromItems(currentItemsArray(tableId));
+    }
+
+    function snapshotTotal(tableId) {
+      return totalFromItems(snapshotItemsArray(tableId));
+    }
+
+    function hashItems(items) {
+      return JSON.stringify(
+        items.map(item => ({
+          name: item.name,
+          price: Number(item.price).toFixed(2),
+          qty: Number(item.qty)
+        }))
+      );
+    }
+
+    function currentHash(tableId) {
+      return hashItems(currentItemsArray(tableId));
+    }
+
+    function savedSentHash(tableId) {
       const table = state.orders[tableId];
-      if (!table) return 0;
-      return Object.values(table.items).reduce((sum, item) => sum + item.qty * item.price, 0);
+      if (!table) return "";
+      return table.sentHash || hashItems(snapshotItemsArray(tableId));
+    }
+
+    function isTableSent(tableId) {
+      return Boolean(state.orders[tableId]?.sentAt);
+    }
+
+    function isModifiedAfterSent(tableId) {
+      if (!isTableSent(tableId)) return false;
+      return currentHash(tableId) !== savedSentHash(tableId);
+    }
+
+    function tableStatus(tableId) {
+      const currentCount = tableItemCount(tableId);
+
+      if (isTableSent(tableId) && isModifiedAfterSent(tableId)) {
+        return {
+          label: "Modificato dopo invio",
+          className: "dirty",
+          note: `Era stato inviato alle ${formatTime(state.orders[tableId].sentAt)}. Ora ci sono modifiche: occhio ai doppioni.`
+        };
+      }
+
+      if (isTableSent(tableId)) {
+        return {
+          label: `Già inviato ${formatTime(state.orders[tableId].sentAt)}`,
+          className: "sent",
+          note: `Questo tavolo/camera è già stato pre-inviato e finirà separato nel report finale.`
+        };
+      }
+
+      if (currentCount <= 0) {
+        return {
+          label: "Vuoto",
+          className: "empty",
+          note: ""
+        };
+      }
+
+      return {
+        label: "Non inviato",
+        className: "",
+        note: ""
+      };
+    }
+
+    function reportTotalForTable(tableId) {
+      if (isTableSent(tableId) && !isModifiedAfterSent(tableId)) {
+        return snapshotTotal(tableId);
+      }
+
+      if (isTableSent(tableId) && tableItemCount(tableId) === 0 && snapshotItemCount(tableId) > 0) {
+        return snapshotTotal(tableId);
+      }
+
+      return tableTotal(tableId);
     }
 
     function dayTotal() {
-      return sortedTableIds().reduce((sum, tableId) => sum + tableTotal(tableId), 0);
+      return sortedTableIds().reduce((sum, tableId) => {
+        if (tableItemCount(tableId) <= 0 && snapshotItemCount(tableId) <= 0) return sum;
+        return sum + reportTotalForTable(tableId);
+      }, 0);
     }
 
     function saveState() {
+      migrateOrders();
+
       const payload = {
         activeMenuId: state.activeMenuId,
         activeSectionId: state.activeSectionId,
         activeTableId: state.activeTableId,
         orders: state.orders
       };
+
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     }
 
     function loadState() {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
+
       try {
         const payload = JSON.parse(raw);
         state.activeMenuId = payload.activeMenuId || null;
         state.activeSectionId = payload.activeSectionId || null;
         state.activeTableId = payload.activeTableId || null;
         state.orders = payload.orders || {};
+        migrateOrders();
       } catch (error) {
         console.warn("Storage non leggibile, riparto pulito.", error);
         state.orders = {};
@@ -815,16 +1156,19 @@
       toast.textContent = text;
       toast.classList.add("show");
       clearTimeout(state.toastTimer);
-      state.toastTimer = setTimeout(() => toast.classList.remove("show"), 1500);
+      state.toastTimer = setTimeout(() => toast.classList.remove("show"), 1700);
     }
 
     function ensureInitialMenu() {
       const menus = getMenus();
       if (!menus.length) return;
+
       if (!state.activeMenuId || !menus.some(menu => menu.id === state.activeMenuId)) {
         state.activeMenuId = menus[0].id;
       }
+
       const menu = activeMenu();
+
       if (!state.activeSectionId || !menu.sections.some(section => section.id === state.activeSectionId)) {
         state.activeSectionId = menu.sections[0]?.id || null;
       }
@@ -843,17 +1187,23 @@
     function renderMenuTabs() {
       const wrap = $("menuTabs");
       wrap.innerHTML = "";
+
       getMenus().forEach(menu => {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "menu-tab" + (menu.id === state.activeMenuId ? " active" : "");
-        btn.innerHTML = `<strong>${escapeHtml(menu.label)}</strong><span>${escapeHtml(menu.subtitle || "")}</span>`;
+        btn.innerHTML = `
+          <strong>${escapeHtml(menu.label)}</strong>
+          <span>${escapeHtml(menu.subtitle || "")}</span>
+        `;
+
         btn.addEventListener("click", () => {
           state.activeMenuId = menu.id;
           state.activeSectionId = menu.sections[0]?.id || null;
           $("searchInput").value = "";
           renderAll();
         });
+
         wrap.appendChild(btn);
       });
     }
@@ -861,6 +1211,7 @@
     function renderSectionStrip() {
       const strip = $("sectionStrip");
       strip.innerHTML = "";
+
       const menu = activeMenu();
       if (!menu) return;
 
@@ -869,11 +1220,13 @@
         btn.type = "button";
         btn.className = "section-btn" + (section.id === state.activeSectionId ? " active" : "");
         btn.textContent = section.label;
+
         btn.addEventListener("click", () => {
           state.activeSectionId = section.id;
           $("searchInput").value = "";
           renderAll();
         });
+
         strip.appendChild(btn);
       });
     }
@@ -883,6 +1236,7 @@
       const menu = activeMenu();
       const section = activeSection();
       const query = $("searchInput").value.trim().toLowerCase();
+
       area.innerHTML = "";
 
       if (!menu || !section) {
@@ -895,19 +1249,22 @@
 
       if (query) {
         title = `Risultati in ${menu.label}`;
-        items = menu.sections.flatMap(sec =>
-          sec.items.map(item => ({ ...item, sectionLabel: sec.label }))
-        ).filter(item => {
-          const haystack = `${item.name} ${item.description || ""} ${item.sectionLabel || ""}`.toLowerCase();
-          return haystack.includes(query);
-        });
+        items = menu.sections
+          .flatMap(sec => sec.items.map(item => ({ ...item, sectionLabel: sec.label })))
+          .filter(item => {
+            const haystack = `${item.name} ${item.description || ""} ${item.sectionLabel || ""}`.toLowerCase();
+            return haystack.includes(query);
+          });
       } else {
         items = section.items || [];
       }
 
       const header = document.createElement("div");
       header.className = "section-title-row";
-      header.innerHTML = `<h2>${escapeHtml(title)}</h2><div class="section-count">${items.length} prodotti</div>`;
+      header.innerHTML = `
+        <h2>${escapeHtml(title)}</h2>
+        <div class="section-count">${items.length} prodotti</div>
+      `;
       area.appendChild(header);
 
       if (!items.length) {
@@ -920,6 +1277,7 @@
 
       const grid = document.createElement("div");
       grid.className = "products-grid";
+
       items.forEach(item => {
         const btn = document.createElement("button");
         btn.type = "button";
@@ -932,23 +1290,30 @@
           </div>
           <div class="price-badge">${euro(item.price)}</div>
         `;
+
         btn.addEventListener("click", () => addItemFlow(item));
         grid.appendChild(btn);
       });
+
       area.appendChild(grid);
     }
 
     function renderActiveChip() {
       const chip = $("activeTableChip");
       const label = $("activeTableLabel");
+
       chip.classList.toggle("has-table", Boolean(state.activeTableId));
-      label.textContent = state.activeTableId ? `Tavolo ${state.activeTableId}` : "Nessun tavolo";
+      label.textContent = state.activeTableId
+        ? displayTableName(state.activeTableId)
+        : "Nessun tavolo/camera";
+
       $("tableInput").value = state.activeTableId || "";
     }
 
     function renderOrders() {
       $("activeTableTotal").textContent = euro(tableTotal(state.activeTableId));
       $("dayTotal").textContent = euro(dayTotal());
+
       renderActiveOrderBox();
       renderTableList();
     }
@@ -958,46 +1323,67 @@
       box.innerHTML = "";
 
       if (!state.activeTableId) {
-        box.innerHTML = `<div class="empty-state">Nessun tavolo selezionato. Aprine uno ora, oppure scegli un prodotto e te lo chiedo io al momento giusto.</div>`;
-        return;
-      }
-
-      const table = state.orders[state.activeTableId];
-      if (!table || !Object.keys(table.items).length) {
         box.innerHTML = `
-          <div class="active-order-box">
-            <div class="active-order-title">
-              <strong>Tavolo ${escapeHtml(state.activeTableId)}</strong>
-              <span class="section-count">vuoto</span>
-            </div>
-            <div class="empty-state">Tavolo aperto. Adesso caricalo.</div>
+          <div class="empty-state">
+            Nessun tavolo/camera selezionato. Aprine uno ora, oppure scegli un prodotto e te lo chiedo io al momento giusto.
           </div>
         `;
         return;
       }
 
+      ensureTableShape(state.activeTableId);
+
+      const currentItems = currentItemsArray(state.activeTableId);
+      const status = tableStatus(state.activeTableId);
+
       const wrapper = document.createElement("div");
       wrapper.className = "active-order-box";
+
       wrapper.innerHTML = `
         <div class="active-order-title">
-          <strong>Tavolo ${escapeHtml(state.activeTableId)}</strong>
+          <strong>${escapeHtml(displayTableName(state.activeTableId))}</strong>
+          <span class="status-badge ${status.className}">${escapeHtml(status.label)}</span>
           <span class="section-count">${tableItemCount(state.activeTableId)} articoli · ${euro(tableTotal(state.activeTableId))}</span>
         </div>
+        ${status.note ? `<div class="status-note">${escapeHtml(status.note)}</div>` : ""}
       `;
 
-      Object.entries(table.items).sort(([,a], [,b]) => a.name.localeCompare(b.name, "it")).forEach(([key, item]) => {
-        wrapper.appendChild(createOrderLine(state.activeTableId, key, item));
-      });
+      if (!currentItems.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "Tavolo aperto ma vuoto. Adesso caricalo.";
+        wrapper.appendChild(empty);
+      } else {
+        currentItems.forEach(item => {
+          const key = itemKey(item);
+          wrapper.appendChild(createOrderLine(state.activeTableId, key, item));
+        });
+      }
 
       const actions = document.createElement("div");
       actions.className = "table-actions";
       actions.style.marginTop = "10px";
+
       actions.innerHTML = `
+        <button class="btn gold" type="button" data-action="send-active">Invia tavolo</button>
         <button class="btn light" type="button" data-action="clear-active">Svuota tavolo</button>
+        <button class="btn light" type="button" data-action="unsend-active">Segna non inviato</button>
         <button class="btn danger" type="button" data-action="delete-active">Elimina tavolo</button>
       `;
-      actions.querySelector('[data-action="clear-active"]').addEventListener("click", () => clearTable(state.activeTableId));
-      actions.querySelector('[data-action="delete-active"]').addEventListener("click", () => deleteTable(state.activeTableId));
+
+      const sendBtn = actions.querySelector('[data-action="send-active"]');
+      const clearBtn = actions.querySelector('[data-action="clear-active"]');
+      const unsendBtn = actions.querySelector('[data-action="unsend-active"]');
+      const deleteBtn = actions.querySelector('[data-action="delete-active"]');
+
+      sendBtn.disabled = tableItemCount(state.activeTableId) <= 0;
+      unsendBtn.disabled = !isTableSent(state.activeTableId);
+
+      sendBtn.addEventListener("click", () => exportSingleTable(state.activeTableId));
+      clearBtn.addEventListener("click", () => clearTable(state.activeTableId));
+      unsendBtn.addEventListener("click", () => resetSentStatus(state.activeTableId));
+      deleteBtn.addEventListener("click", () => deleteTable(state.activeTableId));
+
       wrapper.appendChild(actions);
       box.appendChild(wrapper);
     }
@@ -1005,33 +1391,61 @@
     function renderTableList() {
       const list = $("tableList");
       list.innerHTML = "";
+
       const ids = sortedTableIds();
 
       if (!ids.length) {
-        list.innerHTML = `<div class="empty-state">Nessun tavolo attivo. La giornata è ancora pulita.</div>`;
+        list.innerHTML = `<div class="empty-state">Nessun tavolo/camera attivo. La giornata è ancora pulita.</div>`;
         return;
       }
 
       ids.forEach(tableId => {
-        const card = document.createElement("div");
-        card.className = "table-card" + (tableId === state.activeTableId ? " active" : "");
+        ensureTableShape(tableId);
+
+        const status = tableStatus(tableId);
         const count = tableItemCount(tableId);
-        const updated = state.orders[tableId]?.updatedAt ? new Date(state.orders[tableId].updatedAt).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }) : "--:--";
+        const updated = formatTime(state.orders[tableId]?.updatedAt);
+        const card = document.createElement("div");
+
+        let cardClass = "table-card";
+        if (tableId === state.activeTableId) cardClass += " active";
+        if (status.className === "sent") cardClass += " sent";
+        if (status.className === "dirty") cardClass += " dirty";
+        card.className = cardClass;
+
         card.innerHTML = `
           <div class="table-card-top">
             <div>
-              <div class="table-name">Tavolo ${escapeHtml(tableId)}</div>
+              <div class="table-name">${escapeHtml(displayTableName(tableId))}</div>
               <div class="table-meta">${count} articoli · aggiornato ${updated}</div>
+              <div style="margin-top:7px;">
+                <span class="status-badge ${status.className}">${escapeHtml(status.label)}</span>
+              </div>
             </div>
             <div class="table-total">${euro(tableTotal(tableId))}</div>
           </div>
+
           <div class="table-actions">
             <button class="btn light" type="button" data-action="open">Apri</button>
+            <button class="btn gold" type="button" data-action="send">Invia</button>
+            <button class="btn light" type="button" data-action="unsend">Non inviato</button>
             <button class="btn danger" type="button" data-action="delete">Elimina</button>
           </div>
         `;
-        card.querySelector('[data-action="open"]').addEventListener("click", () => selectTable(tableId));
-        card.querySelector('[data-action="delete"]').addEventListener("click", () => deleteTable(tableId));
+
+        const openBtn = card.querySelector('[data-action="open"]');
+        const sendBtn = card.querySelector('[data-action="send"]');
+        const unsendBtn = card.querySelector('[data-action="unsend"]');
+        const deleteBtn = card.querySelector('[data-action="delete"]');
+
+        sendBtn.disabled = tableItemCount(tableId) <= 0;
+        unsendBtn.disabled = !isTableSent(tableId);
+
+        openBtn.addEventListener("click", () => selectTable(tableId));
+        sendBtn.addEventListener("click", () => exportSingleTable(tableId));
+        unsendBtn.addEventListener("click", () => resetSentStatus(tableId));
+        deleteBtn.addEventListener("click", () => deleteTable(tableId));
+
         list.appendChild(card);
       });
     }
@@ -1039,33 +1453,38 @@
     function createOrderLine(tableId, key, item) {
       const row = document.createElement("div");
       row.className = "order-line";
+
       row.innerHTML = `
         <div>
           <div class="line-name">${escapeHtml(item.name)}</div>
           <div class="line-sub">${euro(item.price)} cad. · totale ${euro(item.price * item.qty)}</div>
         </div>
+
         <div class="qty-controls">
           <button class="qty-btn minus" type="button" title="Rimuovi">−</button>
           <span class="qty-num">${item.qty}</span>
           <button class="qty-btn plus" type="button" title="Aggiungi">+</button>
         </div>
       `;
+
       row.querySelector(".minus").addEventListener("click", () => changeQty(tableId, key, -1));
       row.querySelector(".plus").addEventListener("click", () => changeQty(tableId, key, +1));
+
       return row;
     }
 
     function selectTable(rawValue) {
       const id = normalizeTableId(rawValue);
+
       if (!id) {
-        showToast("Inserisci un numero tavolo/camera.");
+        showToast("Inserisci tavolo, camera o nome.");
         return false;
       }
-      if (!state.orders[id]) {
-        state.orders[id] = { items: {}, createdAt: nowStamp(), updatedAt: nowStamp() };
-      }
+
+      ensureTableShape(id);
       state.activeTableId = id;
-      showToast(`Tavolo ${id} attivo`);
+
+      showToast(`${displayTableName(id)} attivo`);
       renderAll();
       return true;
     }
@@ -1076,109 +1495,365 @@
         openTableModal("Prima scegli tavolo/camera", `Sto per aggiungere: ${item.name}`);
         return;
       }
+
       addItemToTable(state.activeTableId, item);
     }
 
     function addItemToTable(tableId, item) {
       if (!tableId) return;
-      if (!state.orders[tableId]) {
-        state.orders[tableId] = { items: {}, createdAt: nowStamp(), updatedAt: nowStamp() };
-      }
+
+      const table = ensureTableShape(tableId);
       const key = itemKey(item);
-      if (!state.orders[tableId].items[key]) {
-        state.orders[tableId].items[key] = {
+
+      if (!table.items[key]) {
+        table.items[key] = {
           name: item.name,
           price: Number(item.price),
           qty: 0
         };
       }
-      state.orders[tableId].items[key].qty += 1;
-      state.orders[tableId].updatedAt = nowStamp();
+
+      table.items[key].qty += 1;
+      table.updatedAt = nowStamp();
       state.activeTableId = tableId;
-      showToast(`${item.name} aggiunto a Tavolo ${tableId}`);
+
+      showToast(`${item.name} aggiunto a ${displayTableName(tableId)}`);
       renderAll();
     }
 
     function changeQty(tableId, key, delta) {
-      const item = state.orders[tableId]?.items[key];
+      const table = ensureTableShape(tableId);
+      const item = table?.items?.[key];
+
       if (!item) return;
+
       item.qty += delta;
-      if (item.qty <= 0) delete state.orders[tableId].items[key];
-      state.orders[tableId].updatedAt = nowStamp();
+
+      if (item.qty <= 0) {
+        delete table.items[key];
+      }
+
+      table.updatedAt = nowStamp();
       renderAll();
     }
 
     function clearTable(tableId) {
       if (!tableId || !state.orders[tableId]) return;
-      if (!confirm(`Svuotare il tavolo ${tableId}?`)) return;
+
+      const extraWarning = isTableSent(tableId)
+        ? "\n\nQuesto tavolo era già stato inviato: svuotarlo lo farà risultare modificato dopo invio."
+        : "";
+
+      if (!confirm(`Svuotare ${displayTableName(tableId)}?${extraWarning}`)) return;
+
       state.orders[tableId].items = {};
       state.orders[tableId].updatedAt = nowStamp();
+
       renderAll();
     }
 
     function deleteTable(tableId) {
       if (!tableId || !state.orders[tableId]) return;
-      if (!confirm(`Eliminare definitivamente il tavolo ${tableId}?`)) return;
+
+      const extraWarning = isTableSent(tableId)
+        ? "\n\nATTENZIONE: era già stato inviato. Se lo elimini, sparisce anche dalla traccia del report finale."
+        : "";
+
+      if (!confirm(`Eliminare definitivamente ${displayTableName(tableId)}?${extraWarning}`)) return;
+
       delete state.orders[tableId];
-      if (state.activeTableId === tableId) state.activeTableId = null;
+
+      if (state.activeTableId === tableId) {
+        state.activeTableId = null;
+      }
+
       renderAll();
     }
 
+    function resetSentStatus(tableId) {
+      if (!tableId || !state.orders[tableId]) return;
+
+      if (!isTableSent(tableId)) {
+        showToast("Questo tavolo non risulta inviato.");
+        return;
+      }
+
+      if (!confirm(`Segnare ${displayTableName(tableId)} come NON inviato?`)) return;
+
+      delete state.orders[tableId].sentAt;
+      delete state.orders[tableId].sentSnapshot;
+      delete state.orders[tableId].sentTotal;
+      delete state.orders[tableId].sentHash;
+
+      state.orders[tableId].updatedAt = nowStamp();
+
+      showToast(`${displayTableName(tableId)} segnato come non inviato`);
+      renderAll();
+    }
+
+    function markTableAsSent(tableId, sentAtIso) {
+      const table = ensureTableShape(tableId);
+      const items = currentItemsArray(tableId);
+
+      table.sentAt = sentAtIso || nowStamp();
+      table.sentSnapshot = items;
+      table.sentTotal = totalFromItems(items);
+      table.sentHash = hashItems(items);
+      table.updatedAt = nowStamp();
+    }
+
+    function makeDateParts(date) {
+      const datePart = [
+        date.getFullYear(),
+        String(date.getMonth() + 1).padStart(2, "0"),
+        String(date.getDate()).padStart(2, "0")
+      ].join("-");
+
+      const timePart = [
+        String(date.getHours()).padStart(2, "0"),
+        String(date.getMinutes()).padStart(2, "0")
+      ].join("-");
+
+      return { datePart, timePart };
+    }
+
+    function formatItemsBlock(items) {
+      if (!items.length) return "  Nessun articolo\n";
+
+      return items.map(item => {
+        return `  ${item.name} x${item.qty} ${euro(item.price * item.qty)}`;
+      }).join("\n") + "\n";
+    }
+
+    function createSingleTableText(tableId, exportedAtIso) {
+      const items = currentItemsArray(tableId);
+      const total = totalFromItems(items);
+      const exportedAt = new Date(exportedAtIso || nowStamp());
+
+      let text = "";
+      text += `Riepilogo ${displayTableName(tableId)}\n`;
+      text += `Generato: ${exportedAt.toLocaleString("it-IT", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      })}\n\n`;
+
+      text += `${displayTableName(tableId)}:\n`;
+      text += formatItemsBlock(items);
+      text += `  Totale: ${euro(total)}\n\n`;
+      text += `STATO: PRE-INVIATO\n`;
+
+      return text;
+    }
+
+    function createTableBlockForReport(tableId, mode) {
+      const status = tableStatus(tableId);
+      const sentAt = state.orders[tableId]?.sentAt;
+
+      let items;
+
+      if (mode === "sent_snapshot") {
+        items = snapshotItemsArray(tableId);
+      } else {
+        items = currentItemsArray(tableId);
+      }
+
+      const total = totalFromItems(items);
+
+      let text = "";
+      text += `${displayTableName(tableId)}:\n`;
+
+      if (sentAt) {
+        text += `  Stato: pre-inviato alle ${formatDateTime(sentAt)}\n`;
+      } else {
+        text += `  Stato: non pre-inviato\n`;
+      }
+
+      if (status.className === "dirty") {
+        text += `  ATTENZIONE: modificato dopo l'invio precedente\n`;
+      }
+
+      text += formatItemsBlock(items);
+      text += `  Totale: ${euro(total)}\n\n`;
+
+      return { text, total };
+    }
+
+    function downloadText(filename, text) {
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = filename;
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      URL.revokeObjectURL(url);
+    }
+
+    function exportSingleTable(tableId) {
+      if (!tableId || !state.orders[tableId]) return false;
+
+      if (tableItemCount(tableId) <= 0) {
+        alert("Questo tavolo/camera è vuoto. Nulla da inviare.");
+        return false;
+      }
+
+      if (isTableSent(tableId) && !isModifiedAfterSent(tableId)) {
+        const again = confirm(
+          `${displayTableName(tableId)} risulta già inviato.\n\nVuoi rigenerare il TXT e aggiornare l'orario di invio?`
+        );
+        if (!again) return false;
+      }
+
+      if (isTableSent(tableId) && isModifiedAfterSent(tableId)) {
+        const sendDirty = confirm(
+          `${displayTableName(tableId)} è stato modificato dopo il precedente invio.\n\nVuoi inviare la versione aggiornata e segnare questa come nuova versione pre-inviata?`
+        );
+        if (!sendDirty) return false;
+      }
+
+      const exportedAtIso = nowStamp();
+      const exportedAt = new Date(exportedAtIso);
+      const { datePart, timePart } = makeDateParts(exportedAt);
+
+      const text = createSingleTableText(tableId, exportedAtIso);
+      const filename = `riepilogo_${safeFilePart(tableId)}_${datePart}_${timePart}.txt`;
+
+      downloadText(filename, text);
+      markTableAsSent(tableId, exportedAtIso);
+
+      showToast(`${displayTableName(tableId)} inviato`);
+      renderAll();
+
+      return true;
+    }
+
     function exportTxt() {
-      const ids = sortedTableIds().filter(id => tableItemCount(id) > 0);
+      const ids = sortedTableIds().filter(id => {
+        return tableItemCount(id) > 0 || snapshotItemCount(id) > 0;
+      });
+
       if (!ids.length) {
         alert("Nessun ordine da esportare.");
         return false;
       }
 
       const date = new Date();
-      const datePart = [
-        date.getFullYear(),
-        String(date.getMonth() + 1).padStart(2, "0"),
-        String(date.getDate()).padStart(2, "0")
-      ].join("-");
-      const timePart = [
-        String(date.getHours()).padStart(2, "0"),
-        String(date.getMinutes()).padStart(2, "0")
-      ].join("-");
+      const { datePart, timePart } = makeDateParts(date);
 
-      let text = `Riepilogo giornaliero ${date.toLocaleDateString("it-IT")} ${date.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })}\n\n`;
-      let grandTotal = 0;
-
-      ids.forEach(tableId => {
-        const total = tableTotal(tableId);
-        grandTotal += total;
-        text += `Tavolo ${tableId}:\n`;
-        Object.values(state.orders[tableId].items)
-          .sort((a, b) => a.name.localeCompare(b.name, "it"))
-          .forEach(item => {
-            text += `  ${item.name} x${item.qty} ${euro(item.price * item.qty)}\n`;
-          });
-        text += `  Totale Tavolo: ${euro(total)}\n\n`;
+      const notSentIds = ids.filter(id => {
+        return !isTableSent(id) && tableItemCount(id) > 0;
       });
 
-      text += `TOTALE GIORNATA: ${euro(grandTotal)}\n`;
+      const dirtyIds = ids.filter(id => {
+        return isTableSent(id) && isModifiedAfterSent(id) && tableItemCount(id) > 0;
+      });
 
-      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `riepilogo_${datePart}_${timePart}.txt`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
+      const sentIds = ids.filter(id => {
+        return isTableSent(id) && !isModifiedAfterSent(id) && snapshotItemCount(id) > 0;
+      });
+
+      const emptiedAfterSentIds = ids.filter(id => {
+        return isTableSent(id) && isModifiedAfterSent(id) && tableItemCount(id) === 0 && snapshotItemCount(id) > 0;
+      });
+
+      let text = "";
+      text += `Riepilogo giornaliero ${date.toLocaleDateString("it-IT")} ${date.toLocaleTimeString("it-IT", {
+        hour: "2-digit",
+        minute: "2-digit"
+      })}\n\n`;
+
+      let grandTotal = 0;
+
+      text += `TAVOLI / CAMERE NON PRE-INVIATI\n`;
+      text += `============================================================\n\n`;
+
+      if (!notSentIds.length) {
+        text += `  Nessun tavolo/camera non pre-inviato.\n\n`;
+      } else {
+        let sectionTotal = 0;
+
+        notSentIds.forEach(tableId => {
+          const block = createTableBlockForReport(tableId, "current");
+          text += block.text;
+          sectionTotal += block.total;
+        });
+
+        grandTotal += sectionTotal;
+        text += `TOTALE NON PRE-INVIATI: ${euro(sectionTotal)}\n\n`;
+      }
+
+      text += `------------------------------------------------------------\n\n`;
+      text += `TAVOLI / CAMERE MODIFICATI DOPO INVIO\n`;
+      text += `============================================================\n\n`;
+
+      if (!dirtyIds.length && !emptiedAfterSentIds.length) {
+        text += `  Nessun tavolo/camera modificato dopo invio.\n\n`;
+      } else {
+        let sectionTotal = 0;
+
+        dirtyIds.forEach(tableId => {
+          const block = createTableBlockForReport(tableId, "current");
+          text += block.text;
+          sectionTotal += block.total;
+        });
+
+        emptiedAfterSentIds.forEach(tableId => {
+          text += `${displayTableName(tableId)}:\n`;
+          text += `  Stato: pre-inviato alle ${formatDateTime(state.orders[tableId].sentAt)}\n`;
+          text += `  ATTENZIONE: dopo l'invio il tavolo è stato svuotato.\n`;
+          text += `  Sotto resta la traccia dell'invio precedente.\n`;
+          const block = createTableBlockForReport(tableId, "sent_snapshot");
+          text += block.text;
+          sectionTotal += block.total;
+        });
+
+        grandTotal += sectionTotal;
+        text += `TOTALE MODIFICATI DOPO INVIO: ${euro(sectionTotal)}\n\n`;
+      }
+
+      text += `------------------------------------------------------------\n\n`;
+      text += `TAVOLI / CAMERE GIÀ PRE-INVIATI\n`;
+      text += `============================================================\n\n`;
+
+      if (!sentIds.length) {
+        text += `  Nessun tavolo/camera già pre-inviato.\n\n`;
+      } else {
+        let sectionTotal = 0;
+
+        sentIds.forEach(tableId => {
+          const block = createTableBlockForReport(tableId, "sent_snapshot");
+          text += block.text;
+          sectionTotal += block.total;
+        });
+
+        grandTotal += sectionTotal;
+        text += `TOTALE GIÀ PRE-INVIATI: ${euro(sectionTotal)}\n\n`;
+      }
+
+      text += `------------------------------------------------------------\n`;
+      text += `TOTALE GIORNATA COMPLESSIVO: ${euro(grandTotal)}\n`;
+
+      downloadText(`riepilogo_${datePart}_${timePart}.txt`, text);
+
       return true;
     }
 
     async function closeDay() {
       const exported = exportTxt();
       if (!exported) return;
+
       const fx = startSpettacolo();
       await wait(2200);
       stopSpettacolo(fx);
 
-      if (confirm("File esportato. Vuoi azzerare tutti i tavoli per iniziare una nuova giornata?")) {
+      if (confirm("File esportato. Vuoi azzerare tutti i tavoli/camere per iniziare una nuova giornata?")) {
         state.orders = {};
         state.activeTableId = null;
         renderAll();
@@ -1190,10 +1865,13 @@
         showToast("Non c'è nulla da eliminare.");
         return;
       }
-      if (!confirm("Eliminare tutti i tavoli attivi?")) return;
+
+      if (!confirm("Eliminare tutti i tavoli/camere attivi?")) return;
       if (!confirm("Conferma brutale: vuoi davvero cancellare tutto senza esportare?")) return;
+
       state.orders = {};
       state.activeTableId = null;
+
       renderAll();
     }
 
@@ -1201,9 +1879,12 @@
       $("tableModalTitle").textContent = title || "Scegli tavolo/camera";
       $("tableModalText").textContent = text || "Prima scegli dove caricare questo ordine.";
       $("modalTableInput").value = state.activeTableId || "";
+
       renderQuickTables();
+
       $("tableModal").classList.add("show");
       $("tableModal").setAttribute("aria-hidden", "false");
+
       setTimeout(() => $("modalTableInput").focus(), 30);
     }
 
@@ -1216,27 +1897,35 @@
     function confirmTableModal() {
       const ok = selectTable($("modalTableInput").value);
       if (!ok) return;
+
       const item = state.pendingItem;
+
       $("tableModal").classList.remove("show");
       $("tableModal").setAttribute("aria-hidden", "true");
+
       state.pendingItem = null;
+
       if (item) addItemToTable(state.activeTableId, item);
     }
 
     function renderQuickTables() {
       const wrap = $("quickTables");
       wrap.innerHTML = "";
+
       const ids = sortedTableIds();
       if (!ids.length) return;
+
       ids.slice(0, 12).forEach(id => {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "quick-table-btn";
-        btn.textContent = `Tavolo ${id}`;
+        btn.textContent = id;
+
         btn.addEventListener("click", () => {
           $("modalTableInput").value = id;
           confirmTableModal();
         });
+
         wrap.appendChild(btn);
       });
     }
@@ -1244,8 +1933,10 @@
     function openCustomModal() {
       $("customNameInput").value = "";
       $("customPriceInput").value = "";
+
       $("customModal").classList.add("show");
       $("customModal").setAttribute("aria-hidden", "false");
+
       setTimeout(() => $("customNameInput").focus(), 30);
     }
 
@@ -1257,10 +1948,12 @@
     function confirmCustomItem() {
       const name = $("customNameInput").value.trim();
       const price = Number($("customPriceInput").value);
+
       if (!name || Number.isNaN(price) || price < 0) {
         alert("Inserisci nome e prezzo validi.");
         return;
       }
+
       closeCustomModal();
       addItemFlow({ name, price, description: "Prodotto libero" });
     }
@@ -1269,6 +1962,7 @@
       const overlay = $("overlaySpettacolo");
       const canvas = $("canvasSpettacolo");
       const ctx = canvas.getContext("2d");
+
       overlay.style.display = "block";
 
       const fx = {
@@ -1284,7 +1978,9 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
       };
+
       fx.resize();
+
       window.addEventListener("resize", fx.resize);
 
       function createFirework() {
@@ -1300,8 +1996,10 @@
         for (let i = 0; i < 72; i++) {
           const angle = Math.random() * Math.PI * 2;
           const speed = Math.random() * 5 + 2;
+
           fx.particles.push({
-            x, y,
+            x,
+            y,
             vx: Math.cos(angle) * speed,
             vy: Math.sin(angle) * speed,
             life: 1,
@@ -1313,16 +2011,20 @@
 
       function animate() {
         if (!fx.running) return;
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         for (let i = fx.fireworks.length - 1; i >= 0; i--) {
           const f = fx.fireworks[i];
+
           f.y += f.vy;
           f.vy += 0.18;
+
           ctx.beginPath();
           ctx.arc(f.x, f.y, 4, 0, Math.PI * 2);
           ctx.fillStyle = `hsl(${f.hue}, 90%, 58%)`;
           ctx.fill();
+
           if (f.vy >= 0) {
             explode(f.x, f.y, f.hue);
             fx.fireworks.splice(i, 1);
@@ -1331,24 +2033,32 @@
 
         for (let i = fx.particles.length - 1; i >= 0; i--) {
           const p = fx.particles[i];
+
           p.x += p.vx;
           p.y += p.vy;
           p.vy += 0.06;
           p.life -= p.fade;
+
           ctx.beginPath();
           ctx.arc(p.x, p.y, 2.2, 0, Math.PI * 2);
           ctx.fillStyle = `hsla(${p.hue}, 90%, 62%, ${p.life})`;
           ctx.fill();
-          if (p.life <= 0) fx.particles.splice(i, 1);
+
+          if (p.life <= 0) {
+            fx.particles.splice(i, 1);
+          }
         }
 
         fx.rafId = requestAnimationFrame(animate);
       }
 
       fx.intervalId = setInterval(createFirework, 220);
+
       createFirework();
       createFirework();
+
       fx.rafId = requestAnimationFrame(animate);
+
       return fx;
     }
 
@@ -1356,12 +2066,14 @@
       const overlay = $("overlaySpettacolo");
       const canvas = $("canvasSpettacolo");
       const ctx = canvas.getContext("2d");
+
       if (fx) {
         fx.running = false;
         clearInterval(fx.intervalId);
         cancelAnimationFrame(fx.rafId);
         window.removeEventListener("resize", fx.resize);
       }
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       overlay.style.display = "none";
     }
@@ -1381,30 +2093,54 @@
 
     function bindEvents() {
       $("searchInput").addEventListener("input", renderProducts);
+
       $("customItemBtn").addEventListener("click", openCustomModal);
-      $("selectTableBtn").addEventListener("click", () => selectTable($("tableInput").value));
-      $("tableInput").addEventListener("keydown", (e) => {
-        if (e.key === "Enter") selectTable($("tableInput").value);
+
+      $("selectTableBtn").addEventListener("click", () => {
+        selectTable($("tableInput").value);
       });
-      $("changeTableBtn").addEventListener("click", () => openTableModal("Cambia tavolo/camera", "Scegli un tavolo esistente o aprine uno nuovo."));
-      $("activeTableChip").addEventListener("click", () => openTableModal("Cambia tavolo/camera", "Scegli un tavolo esistente o aprine uno nuovo."));
+
+      $("tableInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          selectTable($("tableInput").value);
+        }
+      });
+
+      $("changeTableBtn").addEventListener("click", () => {
+        openTableModal("Cambia tavolo/camera", "Scegli un tavolo esistente o aprine uno nuovo. Ora può essere anche testo: BAR1, ASPORTO, STAFF.");
+      });
+
+      $("activeTableChip").addEventListener("click", () => {
+        openTableModal("Cambia tavolo/camera", "Scegli un tavolo esistente o aprine uno nuovo. Ora può essere anche testo: BAR1, ASPORTO, STAFF.");
+      });
+
       $("cancelTableModalBtn").addEventListener("click", closeTableModal);
       $("confirmTableModalBtn").addEventListener("click", confirmTableModal);
+
       $("modalTableInput").addEventListener("keydown", (e) => {
         if (e.key === "Enter") confirmTableModal();
         if (e.key === "Escape") closeTableModal();
       });
+
       $("tableModal").addEventListener("click", (e) => {
         if (e.target === $("tableModal")) closeTableModal();
       });
+
       $("cancelCustomBtn").addEventListener("click", closeCustomModal);
       $("confirmCustomBtn").addEventListener("click", confirmCustomItem);
+
       $("customPriceInput").addEventListener("keydown", (e) => {
         if (e.key === "Enter") confirmCustomItem();
       });
+
+      $("customNameInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") $("customPriceInput").focus();
+      });
+
       $("customModal").addEventListener("click", (e) => {
         if (e.target === $("customModal")) closeCustomModal();
       });
+
       $("closeDayBtn").addEventListener("click", closeDay);
       $("deleteAllBtn").addEventListener("click", deleteAll);
     }
