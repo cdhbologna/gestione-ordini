@@ -2,850 +2,1418 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gestione Ordini Hotel</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Gestione Ordini Hotel · V1</title>
   <style>
-    :root{
-      --bg:#f2f2f2;
-      --card:#ffffff;
-      --muted:#fafafa;
-      --border:#ddd;
-      --accent:#3498db;
-      --shadow: 0 6px 16px rgba(0,0,0,0.08);
+    :root {
+      --bg: #11100f;
+      --bg-2: #181614;
+      --panel: #f8f3ea;
+      --panel-2: #fffaf1;
+      --ink: #201b16;
+      --muted: #74695f;
+      --line: rgba(32, 27, 22, 0.16);
+      --gold: #b37a35;
+      --gold-dark: #7d4f1e;
+      --danger: #9e2f25;
+      --danger-dark: #762018;
+      --ok: #286b42;
+      --shadow: 0 18px 46px rgba(0,0,0,0.28);
+      --radius: 18px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       margin: 0;
-      background: var(--bg);
-      color:#111;
+      font-family: var(--font);
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(179,122,53,0.24), transparent 32%),
+        radial-gradient(circle at 90% 10%, rgba(255,255,255,0.08), transparent 28%),
+        linear-gradient(135deg, #0f0e0d, #1c1814 50%, #0f0e0d);
+      overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    h1 { text-align: center; margin: 10px 0; }
+    button, input { font-family: inherit; }
+    button { touch-action: manipulation; }
 
-    .header {
-      padding: 10px;
-      text-align: center;
-      background: var(--card);
-      box-shadow: var(--shadow);
+    .app-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
       position: sticky;
       top: 0;
-      z-index: 10;
-    }
-
-    .header input {
-      font-size: 16px;
-      padding: 6px 8px;
-      width: 90px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      outline: none;
-    }
-
-    .header button{
-      padding: 8px 10px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background: #111;
-      color: white;
-      margin-left: 6px;
-      font-weight: 800;
-    }
-    .header button:hover{ opacity: 0.9; }
-    .header button:disabled{ opacity: 0.55; cursor:not-allowed; }
-
-    .container { display: flex; flex-direction: column; height: calc(100vh - 70px); }
-    .riga { display:flex; flex:1; flex-direction:column; }
-
-    .items, .tavoli-box-container {
-      flex: 1;
-      padding: 10px;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .items { background: var(--card); }
-    .tavoli-box-container { background: var(--muted); border-top: 3px solid var(--border); }
-
-    .categoria-box {
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 10px;
-      color: white;
-      cursor: pointer;
-      font-weight: 900;
-      letter-spacing: 0.3px;
-      transition: 0.2s;
-      user-select: none;
-    }
-
-    .categoria-box.active {
-      outline: 2px solid var(--accent);
-      background-color: #eaf3ff !important;
-      color: #111;
-    }
-
-    .main { background:#e74c3c; }
-    .light { background:#27ae60; }
-    .croccantella { background:#c0392b; }
-    .bevande { background:#2980b9; }
-    .altro { background:#8e44ad; }
-
-    .prodotti-dropdown { display:none; padding-left: 10px; overflow-y:auto; max-height: 260px; }
-
-    .prodotto {
-      padding: 14px;
-      margin: 6px 0;
-      border: none;
-      border-radius: 12px;
-      width: 100%;
-      cursor: pointer;
-      background: var(--accent);
-      color: white;
-      font-weight: 800;
-      transition: 0.15s;
-    }
-    .prodotto:hover { background: #217dbb; }
-    .prodotto:active { transform: scale(0.98); }
-
-    #altroInput { display:flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-    #altroInput input, #altroInput button {
-      padding: 10px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      flex: 1;
-      min-width: 120px;
-    }
-    #altroInput button{
-      border: none;
-      background: #111;
-      color: #fff;
-      cursor: pointer;
-      font-weight: 900;
-    }
-    #altroInput button:disabled{ opacity: 0.55; cursor:not-allowed; }
-
-    .tavolo-box {
-      padding: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 12px;
-      background: white;
-      display:flex;
-      flex-direction:column;
-      position:relative;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.06);
-    }
-
-    .tavolo-header {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 10px;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .pill {
-      font-size: 12px;
-      font-weight: 900;
-      padding: 4px 8px;
-      border-radius: 999px;
-      background: #eee;
-    }
-
-    ul { padding-left: 18px; margin: 8px 0 0; }
-    li { margin-bottom: 8px; font-size: 15px; }
-
-    .mini-btn {
-      padding: 4px 8px;
-      font-size: 12px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      font-weight: 900;
-    }
-    .mini-btn.minus { background:#333; color:#fff; }
-    .mini-btn.plus  { background:#0f7a2f; color:#fff; margin-left:6px; }
-    .mini-btn:hover { opacity: 0.92; }
-    .mini-btn:disabled{ opacity: 0.55; cursor:not-allowed; }
-
-    .trash-btn {
-      position:absolute;
-      right: 8px;
-      top: 8px;
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      background: #ffefef;
-    }
-    .trash-btn:disabled{ opacity: 0.55; cursor:not-allowed; }
-
-    .azione {
-      background: green;
-      color: white;
-      margin-top: 10px;
+      z-index: 20;
       padding: 12px;
-      width: 100%;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
+      background: rgba(17, 16, 15, 0.86);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      color: #fff;
+    }
+
+    .topbar-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .brand-title {
       font-weight: 950;
+      letter-spacing: 0.3px;
+      font-size: clamp(18px, 2vw, 28px);
+      line-height: 1;
+    }
+
+    .brand-subtitle {
+      color: rgba(255,255,255,0.62);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .active-table-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: #fff;
+      color: #16120e;
+      font-weight: 950;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.22);
+      white-space: nowrap;
+    }
+
+    .chip-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--danger);
+      box-shadow: 0 0 0 4px rgba(158,47,37,0.16);
+    }
+    .active-table-chip.has-table .chip-dot {
+      background: var(--ok);
+      box-shadow: 0 0 0 4px rgba(40,107,66,0.18);
+    }
+
+    .layout {
+      width: min(1440px, 100%);
+      margin: 0 auto;
+      padding: 14px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(360px, 0.75fr);
+      gap: 14px;
+      min-height: 0;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,0.20);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .menu-panel, .orders-panel {
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 98px);
+    }
+
+    .panel-head {
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, var(--panel-2), var(--panel));
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .menu-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .menu-tab {
+      border: 1px solid rgba(32,27,22,0.18);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 16px;
+      padding: 16px 12px;
+      cursor: pointer;
+      text-align: left;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+      transition: 0.16s ease;
+      min-height: 92px;
+    }
+
+    .menu-tab:hover { transform: translateY(-1px); }
+    .menu-tab.active {
+      background: linear-gradient(135deg, #2b2118, #11100f);
+      color: #fff;
+      border-color: rgba(179,122,53,0.55);
+      box-shadow: 0 12px 26px rgba(0,0,0,0.22);
+    }
+
+    .menu-tab strong {
+      display: block;
+      font-size: 20px;
+      line-height: 1.1;
+      margin-bottom: 8px;
       letter-spacing: 0.2px;
     }
 
-    .elimina-tutti {
-      background: red;
-      color: white;
-      padding: 12px;
-      border: none;
-      border-radius: 12px;
-      margin-top: 10px;
-      cursor: pointer;
+    .menu-tab span {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 750;
+      line-height: 1.25;
+    }
+    .menu-tab.active span { color: rgba(255,255,255,0.68); }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .search-box, .table-input, .custom-input {
       width: 100%;
-      font-weight: 950;
-    }
-
-    .footer-actions { padding: 10px; background: transparent; }
-    button:disabled{ opacity:0.55; cursor:not-allowed; }
-
-    .totale-giornata{
-      margin-top: 12px;
-      padding: 12px;
-      border-radius: 12px;
-      border: 1px dashed #bbb;
+      border: 1px solid var(--line);
       background: #fff;
-      font-weight: 950;
+      border-radius: 14px;
+      padding: 12px 13px;
+      font-size: 16px;
+      outline: none;
+      color: var(--ink);
+    }
+    .search-box:focus, .table-input:focus, .custom-input:focus {
+      border-color: rgba(179,122,53,0.85);
+      box-shadow: 0 0 0 4px rgba(179,122,53,0.14);
     }
 
-    /* ------------------ OVERLAY SPETTACOLO (isolato) ------------------ */
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      cursor: pointer;
+      font-weight: 950;
+      font-size: 14px;
+      letter-spacing: 0.2px;
+      color: #fff;
+      background: #171411;
+      min-height: 44px;
+    }
+    .btn:hover { opacity: 0.94; }
+    .btn:active { transform: scale(0.98); }
+    .btn.gold { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); }
+    .btn.danger { background: linear-gradient(135deg, var(--danger), var(--danger-dark)); }
+    .btn.light { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+    .btn.ok { background: linear-gradient(135deg, #2f7b4a, #1c5632); }
+    .btn:disabled { opacity: 0.48; cursor: not-allowed; transform: none; }
+
+    .section-strip {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: thin;
+    }
+
+    .section-btn {
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 10px 13px;
+      cursor: pointer;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .section-btn.active {
+      background: var(--gold);
+      color: #fff;
+      border-color: var(--gold);
+    }
+
+    .content-scroll {
+      overflow: auto;
+      padding: 14px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .section-title-row {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .section-title-row h2 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.1;
+    }
+
+    .section-count {
+      font-size: 12px;
+      font-weight: 950;
+      color: var(--muted);
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: rgba(32,27,22,0.06);
+      white-space: nowrap;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .product-card {
+      border: 1px solid rgba(32,27,22,0.14);
+      background: #fff;
+      border-radius: 16px;
+      padding: 13px;
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      min-height: 88px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+      transition: 0.14s ease;
+      text-align: left;
+    }
+    .product-card:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,0.10); }
+    .product-card:active { transform: scale(0.985); }
+
+    .product-name {
+      font-weight: 950;
+      font-size: 15px;
+      line-height: 1.15;
+      word-break: break-word;
+    }
+
+    .product-desc {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+      line-height: 1.25;
+    }
+
+    .price-badge {
+      align-self: start;
+      color: #fff;
+      background: #171411;
+      border-radius: 999px;
+      padding: 7px 9px;
+      font-size: 13px;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .orders-head-main {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .orders-head-main h2 {
+      margin: 0;
+      font-size: 21px;
+    }
+
+    .table-controls {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+
+    .totals-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .total-card {
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 12px;
+    }
+
+    .total-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      font-weight: 950;
+      color: var(--muted);
+    }
+
+    .total-value {
+      font-size: 22px;
+      font-weight: 1000;
+      margin-top: 4px;
+    }
+
+    .active-order-box {
+      border: 1px solid rgba(179,122,53,0.28);
+      background: rgba(179,122,53,0.08);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .active-order-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .active-order-title strong { font-size: 16px; }
+
+    .order-line {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 0;
+      border-top: 1px solid rgba(32,27,22,0.12);
+    }
+    .order-line:first-child { border-top: 0; }
+
+    .line-name { font-weight: 900; font-size: 14px; line-height: 1.2; }
+    .line-sub { color: var(--muted); font-size: 12px; font-weight: 700; margin-top: 3px; }
+
+    .qty-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .qty-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: 0;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 1000;
+      cursor: pointer;
+      background: #171411;
+    }
+    .qty-btn.minus { background: var(--danger); }
+    .qty-btn.plus { background: var(--ok); }
+
+    .qty-num {
+      min-width: 28px;
+      text-align: center;
+      font-weight: 1000;
+    }
+
+    .table-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .table-card {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 16px;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+    .table-card.active { outline: 3px solid rgba(179,122,53,0.30); border-color: rgba(179,122,53,0.55); }
+
+    .table-card-top {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .table-name { font-size: 18px; font-weight: 1000; }
+    .table-meta { color: var(--muted); font-size: 12px; font-weight: 750; margin-top: 3px; }
+    .table-total { font-weight: 1000; font-size: 18px; white-space: nowrap; }
+
+    .table-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .empty-state {
+      border: 1px dashed rgba(32,27,22,0.26);
+      border-radius: 16px;
+      padding: 18px;
+      color: var(--muted);
+      background: rgba(255,255,255,0.54);
+      font-weight: 800;
+      text-align: center;
+      line-height: 1.35;
+    }
+
+    .footer-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 14px;
+      border-top: 1px solid var(--line);
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.62);
+      z-index: 99;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+    .modal-backdrop.show { display: flex; }
+
+    .modal {
+      width: min(520px, 100%);
+      background: var(--panel-2);
+      border-radius: 22px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.30);
+    }
+
+    .modal-head {
+      padding: 18px;
+      background: #171411;
+      color: #fff;
+    }
+    .modal-head h3 { margin: 0; font-size: 22px; }
+    .modal-head p { margin: 7px 0 0; color: rgba(255,255,255,0.68); font-weight: 750; }
+
+    .modal-body { padding: 18px; display: grid; gap: 12px; }
+    .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .quick-tables {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .quick-table-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 10px 12px;
+      font-weight: 950;
+      cursor: pointer;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%) translateY(20px);
+      background: #171411;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 999px;
+      padding: 12px 16px;
+      font-weight: 950;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.18s ease;
+      max-width: calc(100vw - 28px);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
     #overlaySpettacolo {
       position: fixed;
       inset: 0;
       display: none;
-      background: rgba(0,0,0,0.10);
-      z-index: 9999;
-      pointer-events: all;
+      background: rgba(0,0,0,0.18);
+      z-index: 150;
+      pointer-events: none;
       overflow: hidden;
     }
-    #canvasSpettacolo {
-      position:absolute;
-      top:0;
-      left:0;
-    }
-
-    .spettacolo-scritta{
-      position:absolute;
-      top:50%;
-      left:50%;
-      transform: translate(-50%,-50%);
-      font-size: clamp(36px, 7vw, 76px);
-      font-weight: 1000;
-      color: #ff2b2b;
-      text-shadow: 3px 3px 10px rgba(0,0,0,0.75);
-      letter-spacing: 1px;
-      user-select:none;
-      white-space: nowrap;
-    }
-
-    .omino {
+    #canvasSpettacolo { position: absolute; inset: 0; }
+    .spettacolo-scritta {
       position: absolute;
-      width: 16px;
-      height: 16px;
-      animation: ballo 0.45s infinite alternate ease-in-out;
-      will-change: transform, top;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-2deg);
+      font-size: clamp(42px, 8vw, 92px);
+      font-weight: 1000;
+      color: #f8f3ea;
+      text-shadow: 0 6px 24px rgba(0,0,0,0.8), 0 0 18px rgba(179,122,53,0.9);
+      letter-spacing: 1px;
+      white-space: nowrap;
       user-select: none;
     }
 
-    @keyframes ballo {
-      0%   { transform: translateY(0px) rotate(-10deg); }
-      50%  { transform: translateY(-8px) rotate(10deg); }
-      100% { transform: translateY(0px) rotate(-10deg); }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .menu-panel, .orders-panel { max-height: none; }
+      .orders-panel { min-height: 520px; }
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      .omino { animation: none; }
+    @media (max-width: 680px) {
+      .topbar-inner { grid-template-columns: 1fr; }
+      .active-table-chip { justify-self: start; }
+      .menu-tabs { grid-template-columns: 1fr; }
+      .menu-tab { min-height: auto; padding: 14px; }
+      .toolbar, .table-controls, .totals-row, .footer-actions { grid-template-columns: 1fr; }
+      .products-grid { grid-template-columns: 1fr; }
+      .layout { padding: 10px; gap: 10px; }
+      .content-scroll { padding: 12px; }
+      .table-actions { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .topbar, .menu-panel, .footer-actions, .btn, .qty-controls { display: none !important; }
+      .layout { display: block; padding: 0; }
+      .panel { box-shadow: none; border: 0; }
+      .orders-panel { max-height: none; }
     }
   </style>
 </head>
-
 <body>
-  <h1>Gestione Ordini Hotel</h1>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="brand-title">Gestione Ordini Hotel</div>
+          <div class="brand-subtitle">Bistro · Bar · Birra & Pizza · salvataggio locale automatico</div>
+        </div>
+        <button class="active-table-chip" id="activeTableChip" type="button" title="Cambia tavolo/camera">
+          <span class="chip-dot"></span>
+          <span id="activeTableLabel">Nessun tavolo</span>
+        </button>
+      </div>
+    </header>
 
-  <div class="header">
-    <strong>Numero Tavolo:</strong>
-    <input type="number" id="numeroTavolo" />
-    <button id="btnApriTavolo">Apri Tavolo</button>
+    <main class="layout">
+      <section class="panel menu-panel">
+        <div class="panel-head">
+          <div class="menu-tabs" id="menuTabs"></div>
+          <div class="toolbar">
+            <input class="search-box" id="searchInput" type="search" placeholder="Cerca prodotto nel menu selezionato..." autocomplete="off" />
+            <button class="btn gold" id="customItemBtn" type="button">+ Altro</button>
+          </div>
+          <div class="section-strip" id="sectionStrip"></div>
+        </div>
+        <div class="content-scroll" id="productsArea"></div>
+      </section>
+
+      <aside class="panel orders-panel">
+        <div class="panel-head">
+          <div class="orders-head-main">
+            <h2>Ordini attivi</h2>
+            <button class="btn light" id="changeTableBtn" type="button">Tavolo</button>
+          </div>
+          <div class="table-controls">
+            <input class="table-input" id="tableInput" type="text" inputmode="numeric" placeholder="Numero tavolo/camera" />
+            <button class="btn ok" id="selectTableBtn" type="button">Apri</button>
+          </div>
+          <div class="totals-row">
+            <div class="total-card">
+              <div class="total-label">Tavolo attivo</div>
+              <div class="total-value" id="activeTableTotal">€0,00</div>
+            </div>
+            <div class="total-card">
+              <div class="total-label">Totale giornata</div>
+              <div class="total-value" id="dayTotal">€0,00</div>
+            </div>
+          </div>
+        </div>
+        <div class="content-scroll">
+          <div id="activeOrderBox"></div>
+          <div id="tableList" class="table-list"></div>
+        </div>
+        <div class="footer-actions">
+          <button class="btn gold" id="closeDayBtn" type="button">Chiusura giornaliera</button>
+          <button class="btn danger" id="deleteAllBtn" type="button">Elimina tutto</button>
+        </div>
+      </aside>
+    </main>
   </div>
 
-  <div class="container riga">
-
-    <!-- Riquadro alto: Items -->
-    <div class="items" id="itemsContainer">
-      <!-- menu generato via JS (menu.js) -->
-
-      <!-- ALTRO -->
-      <div class="categoria-box altro" data-target="altroProdotti">ALTRO</div>
-      <div id="altroProdotti" class="prodotti-dropdown">
-        <div id="altroInput">
-          <input type="text" id="altroNome" placeholder="Nome Prodotto" />
-          <input type="number" id="altroPrezzo" placeholder="Prezzo" step="0.01" />
-          <button id="btnAltroAggiungi">Aggiungi</button>
+  <div class="modal-backdrop" id="tableModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="tableModalTitle">
+      <div class="modal-head">
+        <h3 id="tableModalTitle">Scegli tavolo/camera</h3>
+        <p id="tableModalText">Prima scegli dove caricare questo ordine.</p>
+      </div>
+      <div class="modal-body">
+        <input class="table-input" id="modalTableInput" type="text" inputmode="numeric" placeholder="Es. 12, 204, BAR1" />
+        <div class="quick-tables" id="quickTables"></div>
+        <div class="modal-actions">
+          <button class="btn light" id="cancelTableModalBtn" type="button">Annulla</button>
+          <button class="btn ok" id="confirmTableModalBtn" type="button">Conferma</button>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Riquadro basso: Tavoli e ordini -->
-    <div class="tavoli-box-container" id="tavoliContainer">
-      <h3>Lista Tavoli</h3>
-    </div>
-
-    <!-- Chiusura Giornaliera -->
-    <div class="footer-actions">
-      <button class="azione" id="btnChiusura">CHIUSURA GIORNALIERA 🎆</button>
-      <button class="elimina-tutti" id="btnEliminaTutti">ELIMINA TUTTI I TAVOLI 😢</button>
+  <div class="modal-backdrop" id="customModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="customModalTitle">
+      <div class="modal-head">
+        <h3 id="customModalTitle">Aggiungi prodotto libero</h3>
+        <p>Per extra, correzioni, prodotti fuori menu. Pulito, rapido, senza fare il giocoliere.</p>
+      </div>
+      <div class="modal-body">
+        <input class="custom-input" id="customNameInput" type="text" placeholder="Nome prodotto" />
+        <input class="custom-input" id="customPriceInput" type="number" step="0.01" min="0" placeholder="Prezzo" />
+        <div class="modal-actions">
+          <button class="btn light" id="cancelCustomBtn" type="button">Annulla</button>
+          <button class="btn ok" id="confirmCustomBtn" type="button">Aggiungi</button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Overlay animazione -->
   <div id="overlaySpettacolo" aria-hidden="true">
     <canvas id="canvasSpettacolo"></canvas>
-    <div class="spettacolo-scritta" id="scrittaSpettacolo">SI VA A CASA!</div>
+    <div class="spettacolo-scritta">SI VA A CASA!</div>
   </div>
 
-  <!-- Menù separato -->
-  <script src="./menu.js"></script>
+  <div class="toast" id="toast"></div>
 
+  <script src="./menu-data.js"></script>
   <script>
-    // ------------------ Stato ------------------
-    let tavoli = {};
-    let tavoloSelezionato = null;
-    let statoTavoli = {};
+    const STORAGE_KEY = "hotel_orders_v2";
 
-    // ------------------ Storage ------------------
-    const STORAGE_KEY = "tavoliHotel_v1";
+    const state = {
+      activeMenuId: null,
+      activeSectionId: null,
+      activeTableId: null,
+      orders: {},
+      pendingItem: null,
+      toastTimer: null
+    };
 
-    function salvaDati() {
-      const payload = { tavoli, tavoloSelezionato, statoTavoli };
+    const $ = (id) => document.getElementById(id);
+
+    function euro(value) {
+      return new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(Number(value || 0));
+    }
+
+    function nowStamp() {
+      return new Date().toISOString();
+    }
+
+    function normalizeTableId(value) {
+      return String(value || "").trim().replace(/\s+/g, " ").toUpperCase();
+    }
+
+    function sortedTableIds() {
+      return Object.keys(state.orders).sort((a, b) => {
+        const na = Number(a), nb = Number(b);
+        if (!Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
+        return a.localeCompare(b, "it", { numeric: true });
+      });
+    }
+
+    function itemKey(item) {
+      return `${item.name}__${Number(item.price).toFixed(2)}`;
+    }
+
+    function tableItemCount(tableId) {
+      const table = state.orders[tableId];
+      if (!table) return 0;
+      return Object.values(table.items).reduce((sum, item) => sum + item.qty, 0);
+    }
+
+    function tableTotal(tableId) {
+      const table = state.orders[tableId];
+      if (!table) return 0;
+      return Object.values(table.items).reduce((sum, item) => sum + item.qty * item.price, 0);
+    }
+
+    function dayTotal() {
+      return sortedTableIds().reduce((sum, tableId) => sum + tableTotal(tableId), 0);
+    }
+
+    function saveState() {
+      const payload = {
+        activeMenuId: state.activeMenuId,
+        activeSectionId: state.activeSectionId,
+        activeTableId: state.activeTableId,
+        orders: state.orders
+      };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     }
 
-    function caricaDati() {
+    function loadState() {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
       try {
         const payload = JSON.parse(raw);
-        tavoli = payload.tavoli || {};
-        tavoloSelezionato = payload.tavoloSelezionato ?? null;
-        statoTavoli = payload.statoTavoli || {};
-      } catch {
-        tavoli = {};
-        tavoloSelezionato = null;
-        statoTavoli = {};
+        state.activeMenuId = payload.activeMenuId || null;
+        state.activeSectionId = payload.activeSectionId || null;
+        state.activeTableId = payload.activeTableId || null;
+        state.orders = payload.orders || {};
+      } catch (error) {
+        console.warn("Storage non leggibile, riparto pulito.", error);
+        state.orders = {};
       }
     }
 
-    // ------------------ Utils ------------------
-    function euro(n) { return "€" + Number(n).toFixed(2); }
-    function sortTavoliKeys(obj) { return Object.keys(obj).sort((a,b) => Number(a) - Number(b)); }
+    function getMenus() {
+      return Array.isArray(window.MENU_DATA) ? window.MENU_DATA : [];
+    }
 
-    // ------------------ Costruzione Menu (da menu.js) ------------------
-    function buildMenu() {
-      const itemsContainer = document.getElementById("itemsContainer");
-      const altroCat = itemsContainer.querySelector('.categoria-box.altro');
+    function activeMenu() {
+      return getMenus().find(menu => menu.id === state.activeMenuId) || getMenus()[0];
+    }
 
-      (window.MENU || []).forEach(cat => {
-        const catDiv = document.createElement("div");
-        catDiv.className = `categoria-box ${cat.cssClass}`;
-        catDiv.dataset.target = cat.id;
-        catDiv.textContent = cat.label;
+    function activeSection() {
+      const menu = activeMenu();
+      if (!menu) return null;
+      return menu.sections.find(section => section.id === state.activeSectionId) || menu.sections[0];
+    }
 
-        const drop = document.createElement("div");
-        drop.id = cat.id;
-        drop.className = "prodotti-dropdown";
+    function showToast(text) {
+      const toast = $("toast");
+      toast.textContent = text;
+      toast.classList.add("show");
+      clearTimeout(state.toastTimer);
+      state.toastTimer = setTimeout(() => toast.classList.remove("show"), 1500);
+    }
 
-        (cat.items || []).forEach(it => {
-          const btn = document.createElement("button");
-          btn.className = "prodotto";
-          btn.type = "button";
-          btn.dataset.name = it.name;
-          btn.dataset.price = it.price;
-          btn.textContent = `${it.name} ${euro(it.price)}`;
-          drop.appendChild(btn);
+    function ensureInitialMenu() {
+      const menus = getMenus();
+      if (!menus.length) return;
+      if (!state.activeMenuId || !menus.some(menu => menu.id === state.activeMenuId)) {
+        state.activeMenuId = menus[0].id;
+      }
+      const menu = activeMenu();
+      if (!state.activeSectionId || !menu.sections.some(section => section.id === state.activeSectionId)) {
+        state.activeSectionId = menu.sections[0]?.id || null;
+      }
+    }
+
+    function renderAll() {
+      ensureInitialMenu();
+      renderMenuTabs();
+      renderSectionStrip();
+      renderProducts();
+      renderOrders();
+      renderActiveChip();
+      saveState();
+    }
+
+    function renderMenuTabs() {
+      const wrap = $("menuTabs");
+      wrap.innerHTML = "";
+      getMenus().forEach(menu => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "menu-tab" + (menu.id === state.activeMenuId ? " active" : "");
+        btn.innerHTML = `<strong>${escapeHtml(menu.label)}</strong><span>${escapeHtml(menu.subtitle || "")}</span>`;
+        btn.addEventListener("click", () => {
+          state.activeMenuId = menu.id;
+          state.activeSectionId = menu.sections[0]?.id || null;
+          $("searchInput").value = "";
+          renderAll();
         });
-
-        itemsContainer.insertBefore(drop, altroCat);
-        itemsContainer.insertBefore(catDiv, drop);
+        wrap.appendChild(btn);
       });
     }
 
-    // ------------------ Toggle categorie robusto ------------------
-    function initCategoryToggle() {
-      document.querySelectorAll(".categoria-box").forEach(box => {
-        box.addEventListener("click", function() {
-          const id = this.dataset.target;
-          const prodotti = document.getElementById(id);
-          if (!prodotti) return;
+    function renderSectionStrip() {
+      const strip = $("sectionStrip");
+      strip.innerHTML = "";
+      const menu = activeMenu();
+      if (!menu) return;
 
-          document.querySelectorAll(".prodotti-dropdown").forEach(p => {
-            if (p !== prodotti) p.style.display = "none";
-          });
-          document.querySelectorAll(".categoria-box").forEach(c => {
-            if (c !== this) c.classList.remove("active");
-          });
-
-          const isOpen = prodotti.style.display === "block";
-          prodotti.style.display = isOpen ? "none" : "block";
-          this.classList.toggle("active", !isOpen);
+      menu.sections.forEach(section => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "section-btn" + (section.id === state.activeSectionId ? " active" : "");
+        btn.textContent = section.label;
+        btn.addEventListener("click", () => {
+          state.activeSectionId = section.id;
+          $("searchInput").value = "";
+          renderAll();
         });
+        strip.appendChild(btn);
       });
     }
 
-    // ------------------ Event delegation: click prodotti ------------------
-    function initProductClicks() {
-      document.getElementById("itemsContainer").addEventListener("click", (e) => {
-        const btn = e.target.closest(".prodotto");
-        if (!btn) return;
-        const nome = btn.dataset.name;
-        const prezzo = parseFloat(btn.dataset.price);
-        aggiungiProdotto(nome, prezzo);
-      });
-    }
-
-    // ------------------ Tavoli ------------------
-    function selezionaTavolo() {
-      const num = document.getElementById("numeroTavolo").value;
-      if (!num) return alert("Inserisci numero tavolo");
-
-      if (!tavoli[num]) tavoli[num] = { ordine: {} };
-      tavoloSelezionato = String(num);
-      statoTavoli[tavoloSelezionato] = true;
-
-      salvaDati();
-      renderTavoli();
-    }
-
-    function aggiungiProdotto(nome, prezzo) {
-      if (!tavoloSelezionato) return alert("Seleziona un tavolo prima");
-
-      const ord = tavoli[tavoloSelezionato].ordine;
-      if (ord[nome]) ord[nome].q++;
-      else ord[nome] = { p: prezzo, q: 1 };
-
-      salvaDati();
-      renderTavoli();
-    }
-
-    function aggiungiProdottoAltro() {
-      const nome = document.getElementById("altroNome").value.trim();
-      const prezzo = parseFloat(document.getElementById("altroPrezzo").value);
-      if (!nome || isNaN(prezzo)) return alert("Inserisci un nome e un prezzo validi");
-
-      aggiungiProdotto(nome, prezzo);
-      document.getElementById("altroNome").value = "";
-      document.getElementById("altroPrezzo").value = "";
-    }
-
-    function rimuoviProdotto(tav, prod) {
-      if (tavoli[tav]?.ordine?.[prod]) {
-        tavoli[tav].ordine[prod].q--;
-        if (tavoli[tav].ordine[prod].q <= 0) delete tavoli[tav].ordine[prod];
-      }
-      salvaDati();
-      renderTavoli();
-    }
-
-    function incrementaProdotto(tav, prod) {
-      if (tavoli[tav]?.ordine?.[prod]) {
-        tavoli[tav].ordine[prod].q++;
-      }
-      salvaDati();
-      renderTavoli();
-    }
-
-    function eliminaTavolo(tav) {
-      if (confirm(`Eliminare definitivamente il tavolo ${tav}?`)) {
-        delete tavoli[tav];
-        delete statoTavoli[tav];
-        if (tavoloSelezionato === tav) tavoloSelezionato = null;
-        salvaDati();
-        renderTavoli();
-      }
-    }
-
-    // ------------------ Render tavoli + totale giorno ------------------
-    function renderTavoli() {
-      const container = document.getElementById("tavoliContainer");
-      container.innerHTML = "<h3>Lista Tavoli</h3>";
-
-      let totaleGiornata = 0;
-      const keys = sortTavoliKeys(tavoli);
-
-      for (let t of keys) {
-        if (statoTavoli[t] === undefined) statoTavoli[t] = false;
-
-        const box = document.createElement("div");
-        box.className = "tavolo-box";
-
-        if (String(tavoloSelezionato) === String(t)) {
-          box.style.outline = "2px solid var(--accent)";
-          box.style.boxShadow = "0 0 14px rgba(52,152,219,0.35)";
-        }
-
-        const header = document.createElement("div");
-        header.className = "tavolo-header";
-
-        const left = document.createElement("div");
-        left.innerHTML = `<strong>Tavolo ${t}</strong>`;
-
-        const right = document.createElement("div");
-        right.className = "pill";
-        right.textContent = statoTavoli[t] ? "APERTO" : "CHIUSO";
-
-        header.appendChild(left);
-        header.appendChild(right);
-
-        const lista = document.createElement("ul");
-        lista.style.display = statoTavoli[t] ? "block" : "none";
-
-        let totaleTavolo = 0;
-
-        for (let prod in tavoli[t].ordine) {
-          const o = tavoli[t].ordine[prod];
-          totaleTavolo += o.p * o.q;
-
-          const li = document.createElement("li");
-          const txt = document.createElement("span");
-          txt.textContent = `${prod} x${o.q} ${euro(o.p * o.q)} `;
-
-          const btnMinus = document.createElement("button");
-          btnMinus.className = "mini-btn minus";
-          btnMinus.type = "button";
-          btnMinus.textContent = "-";
-          btnMinus.addEventListener("click", (e) => {
-            e.stopPropagation();
-            rimuoviProdotto(String(t), prod);
-          });
-
-          const btnPlus = document.createElement("button");
-          btnPlus.className = "mini-btn plus";
-          btnPlus.type = "button";
-          btnPlus.textContent = "+";
-          btnPlus.addEventListener("click", (e) => {
-            e.stopPropagation();
-            incrementaProdotto(String(t), prod);
-          });
-
-          li.appendChild(txt);
-          li.appendChild(btnMinus);
-          li.appendChild(btnPlus);
-          lista.appendChild(li);
-        }
-
-        totaleGiornata += totaleTavolo;
-
-        const liTotale = document.createElement("li");
-        liTotale.innerHTML = `<strong>Totale Tavolo: ${euro(totaleTavolo)}</strong>`;
-        lista.appendChild(liTotale);
-
-        header.addEventListener("click", () => {
-          statoTavoli[t] = !statoTavoli[t];
-          lista.style.display = statoTavoli[t] ? "block" : "none";
-          right.textContent = statoTavoli[t] ? "APERTO" : "CHIUSO";
-          salvaDati();
-        });
-
-        const btnDel = document.createElement("button");
-        btnDel.className = "trash-btn";
-        btnDel.type = "button";
-        btnDel.textContent = "🗑️";
-        btnDel.addEventListener("click", (e) => {
-          e.stopPropagation();
-          eliminaTavolo(String(t));
-        });
-
-        box.appendChild(header);
-        box.appendChild(lista);
-        box.appendChild(btnDel);
-        container.appendChild(box);
-      }
-
-      const totaleBox = document.createElement("div");
-      totaleBox.className = "totale-giornata";
-      totaleBox.innerHTML = `Totale Giornaliero: ${euro(totaleGiornata)}`;
-      container.appendChild(totaleBox);
-    }
-
-    // ------------------ Export TXT (pure function) ------------------
-    function generaFileChiusuraTxt() {
-      if (Object.keys(tavoli).length === 0) {
-        alert("Nessun tavolo da esportare");
-        return false;
-      }
-
-      const data = new Date();
-      const filename = `riepilogo_${data.getFullYear()}-${String(data.getMonth()+1).padStart(2,"0")}-${String(data.getDate()).padStart(2,"0")}.txt`;
-
-      let contenuto = "Riepilogo giornaliero " + data.toLocaleDateString() + "\n\n";
-      let totaleGiornata = 0;
-
-      for (let t of sortTavoliKeys(tavoli)) {
-        contenuto += `Tavolo ${t}:\n`;
-        let totaleTavolo = 0;
-
-        for (let p in tavoli[t].ordine) {
-          const o = tavoli[t].ordine[p];
-          contenuto += `  ${p} x${o.q} ${euro(o.p * o.q)}\n`;
-          totaleTavolo += o.p * o.q;
-        }
-
-        contenuto += `  Totale Tavolo: ${euro(totaleTavolo)}\n\n`;
-        totaleGiornata += totaleTavolo;
-      }
-
-      contenuto += `TOTALE GIORNATA: ${euro(totaleGiornata)}\n`;
-
-      const blob = new Blob([contenuto], { type: "text/plain" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = filename;
-      link.click();
-
-      return true;
-    }
-
-    // ------------------ Animazione spettacolo (clean) ------------------
-    function createRandomColorHex() {
-      return Math.floor(Math.random() * 16777215).toString(16).padStart(6, "0");
-    }
-
-    function startSpettacolo() {
-      const overlay = document.getElementById("overlaySpettacolo");
-      const canvas = document.getElementById("canvasSpettacolo");
-      const ctx = canvas.getContext("2d");
-
-      // reset display + transform
-      overlay.style.display = "block";
-      overlay.style.transform = "translate(0px, 0px)";
-
-      // resize
-      function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      }
-      resize();
-
-      const state = {
-        running: true,
-        fuochi: [],
-        particelle: [],
-        omini: [],
-        intervalId: null,
-        rafId: null,
-        onResize: resize
-      };
-
-      window.addEventListener("resize", state.onResize);
-
-      function creaOmini() {
-        const count = 36;
-        for (let i = 0; i < count; i++) {
-          const omino = document.createElement("div");
-          omino.className = "omino";
-          omino.style.left = Math.random() * window.innerWidth + "px";
-          omino.style.top = Math.random() * window.innerHeight + "px";
-
-          const shirt = createRandomColorHex();
-          omino.innerHTML = `
-            <svg width="16" height="16" viewBox="0 0 16 16">
-              <rect x="6" y="0" width="4" height="4" fill="#ffcc99"/>
-              <rect x="4" y="4" width="8" height="6" fill="#${shirt}"/>
-              <rect x="4" y="10" width="3" height="6" fill="#663300"/>
-              <rect x="9" y="10" width="3" height="6" fill="#663300"/>
-            </svg>
-          `;
-          overlay.appendChild(omino);
-          state.omini.push(omino);
-        }
-      }
-
-      function creaFuoco() {
-        const x = Math.random() * canvas.width;
-        const y = canvas.height;
-        const colore = Math.random() * 360;
-        state.fuochi.push({ x, y, vy: Math.random() * -10 - 6, esploso: false, colore });
-      }
-
-      function creaParticelle(x, y, colore) {
-        const count = 80;
-        for (let i = 0; i < count; i++) {
-          const angle = Math.random() * Math.PI * 2;
-          const speed = Math.random() * 6 + 2;
-          state.particelle.push({
-            x, y,
-            vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
-            alpha: 1,
-            fade: Math.random() * 0.03 + 0.01,
-            color: colore
-          });
-        }
-      }
-
-      function jumpOminiNear(x, y) {
-        state.omini.forEach(o => {
-          const ox = parseFloat(o.style.left);
-          const oy = parseFloat(o.style.top);
-          if (Math.abs(ox - x) < 100 && Math.abs(oy - y) < 100) {
-            o.style.transition = "top 0.18s";
-            o.style.top = (oy - 30 + Math.random() * 20) + "px";
-          }
-        });
-      }
-
-      function animate() {
-        if (!state.running) return;
-
-        // shake leggero
-        const sx = (Math.random() - 0.5) * 6;
-        const sy = (Math.random() - 0.5) * 6;
-        overlay.style.transform = `translate(${sx}px, ${sy}px)`;
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // fuochi
-        for (let i = state.fuochi.length - 1; i >= 0; i--) {
-          const f = state.fuochi[i];
-          f.y += f.vy;
-          f.vy += 0.2;
-
-          ctx.beginPath();
-          ctx.arc(f.x, f.y, 4, 0, Math.PI * 2);
-          ctx.fillStyle = `hsl(${f.colore}, 100%, 50%)`;
-          ctx.fill();
-
-          if (!f.esploso && f.vy >= 0) {
-            f.esploso = true;
-            creaParticelle(f.x, f.y, f.colore);
-            jumpOminiNear(f.x, f.y);
-            state.fuochi.splice(i, 1);
-          }
-        }
-
-        // particelle
-        for (let i = state.particelle.length - 1; i >= 0; i--) {
-          const p = state.particelle[i];
-          p.x += p.vx;
-          p.y += p.vy;
-          p.vy += 0.1;
-          p.alpha -= p.fade;
-
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
-          ctx.fillStyle = `hsla(${p.color}, 100%, 50%, ${p.alpha})`;
-          ctx.fill();
-
-          if (p.alpha <= 0) state.particelle.splice(i, 1);
-        }
-
-        state.rafId = requestAnimationFrame(animate);
-      }
-
-      creaOmini();
-      state.intervalId = setInterval(creaFuoco, 420);
-      state.rafId = requestAnimationFrame(animate);
-
-      return state;
-    }
-
-    function stopSpettacolo(state) {
-      const overlay = document.getElementById("overlaySpettacolo");
-      const canvas = document.getElementById("canvasSpettacolo");
-      const ctx = canvas.getContext("2d");
-
-      if (!state) {
-        overlay.style.display = "none";
-        overlay.style.transform = "translate(0px, 0px)";
-        ctx.clearRect(0,0,canvas.width,canvas.height);
+    function renderProducts() {
+      const area = $("productsArea");
+      const menu = activeMenu();
+      const section = activeSection();
+      const query = $("searchInput").value.trim().toLowerCase();
+      area.innerHTML = "";
+
+      if (!menu || !section) {
+        area.innerHTML = `<div class="empty-state">Nessun menu trovato. Controlla menu-data.js.</div>`;
         return;
       }
 
-      state.running = false;
-      if (state.intervalId) clearInterval(state.intervalId);
-      if (state.rafId) cancelAnimationFrame(state.rafId);
-      window.removeEventListener("resize", state.onResize);
+      let items = [];
+      let title = section.label;
 
-      // rimuove omini
-      state.omini.forEach(o => o.remove());
+      if (query) {
+        title = `Risultati in ${menu.label}`;
+        items = menu.sections.flatMap(sec =>
+          sec.items.map(item => ({ ...item, sectionLabel: sec.label }))
+        ).filter(item => {
+          const haystack = `${item.name} ${item.description || ""} ${item.sectionLabel || ""}`.toLowerCase();
+          return haystack.includes(query);
+        });
+      } else {
+        items = section.items || [];
+      }
 
-      // pulizia canvas + overlay
-      overlay.style.transform = "translate(0px, 0px)";
-      overlay.style.display = "none";
-      ctx.clearRect(0,0,canvas.width,canvas.height);
+      const header = document.createElement("div");
+      header.className = "section-title-row";
+      header.innerHTML = `<h2>${escapeHtml(title)}</h2><div class="section-count">${items.length} prodotti</div>`;
+      area.appendChild(header);
+
+      if (!items.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "Nessun prodotto trovato. Stringi meno la ricerca, partner.";
+        area.appendChild(empty);
+        return;
+      }
+
+      const grid = document.createElement("div");
+      grid.className = "products-grid";
+      items.forEach(item => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "product-card";
+        btn.innerHTML = `
+          <div>
+            <div class="product-name">${escapeHtml(item.name)}</div>
+            ${item.description ? `<div class="product-desc">${escapeHtml(item.description)}</div>` : ""}
+            ${item.sectionLabel ? `<div class="product-desc">${escapeHtml(item.sectionLabel)}</div>` : ""}
+          </div>
+          <div class="price-badge">${euro(item.price)}</div>
+        `;
+        btn.addEventListener("click", () => addItemFlow(item));
+        grid.appendChild(btn);
+      });
+      area.appendChild(grid);
     }
 
-    // ------------------ UI Lock ------------------
-    function setUiDisabled(disabled) {
-      document.getElementById("btnApriTavolo").disabled = disabled;
-      document.getElementById("btnAltroAggiungi").disabled = disabled;
-      document.getElementById("btnChiusura").disabled = disabled;
-      document.getElementById("btnEliminaTutti").disabled = disabled;
-      document.querySelectorAll(".prodotto, .mini-btn, .trash-btn").forEach(el => el.disabled = disabled);
+    function renderActiveChip() {
+      const chip = $("activeTableChip");
+      const label = $("activeTableLabel");
+      chip.classList.toggle("has-table", Boolean(state.activeTableId));
+      label.textContent = state.activeTableId ? `Tavolo ${state.activeTableId}` : "Nessun tavolo";
+      $("tableInput").value = state.activeTableId || "";
     }
 
-    // ------------------ Chiusura Giornaliera con animazione ------------------
-    async function chiusuraGiornalieraConSpettacolo() {
-      // precheck prima di far casino
-      if (Object.keys(tavoli).length === 0) return alert("Nessun tavolo da esportare");
+    function renderOrders() {
+      $("activeTableTotal").textContent = euro(tableTotal(state.activeTableId));
+      $("dayTotal").textContent = euro(dayTotal());
+      renderActiveOrderBox();
+      renderTableList();
+    }
 
-      setUiDisabled(true);
+    function renderActiveOrderBox() {
+      const box = $("activeOrderBox");
+      box.innerHTML = "";
 
-      let spettacoloState = null;
-      try {
-        spettacoloState = startSpettacolo();
+      if (!state.activeTableId) {
+        box.innerHTML = `<div class="empty-state">Nessun tavolo selezionato. Aprine uno ora, oppure scegli un prodotto e te lo chiedo io al momento giusto.</div>`;
+        return;
+      }
 
-        // dopo un po' esporta (senza sapere durata precisa: scelgo un tempo "giusto")
-        await new Promise(res => setTimeout(res, 3500));
-        generaFileChiusuraTxt();
+      const table = state.orders[state.activeTableId];
+      if (!table || !Object.keys(table.items).length) {
+        box.innerHTML = `
+          <div class="active-order-box">
+            <div class="active-order-title">
+              <strong>Tavolo ${escapeHtml(state.activeTableId)}</strong>
+              <span class="section-count">vuoto</span>
+            </div>
+            <div class="empty-state">Tavolo aperto. Adesso caricalo.</div>
+          </div>
+        `;
+        return;
+      }
 
-        // lascia respirare ancora un attimo e chiudi
-        await new Promise(res => setTimeout(res, 1100));
-      } finally {
-        stopSpettacolo(spettacoloState);
-        setUiDisabled(false);
+      const wrapper = document.createElement("div");
+      wrapper.className = "active-order-box";
+      wrapper.innerHTML = `
+        <div class="active-order-title">
+          <strong>Tavolo ${escapeHtml(state.activeTableId)}</strong>
+          <span class="section-count">${tableItemCount(state.activeTableId)} articoli · ${euro(tableTotal(state.activeTableId))}</span>
+        </div>
+      `;
+
+      Object.entries(table.items).sort(([,a], [,b]) => a.name.localeCompare(b.name, "it")).forEach(([key, item]) => {
+        wrapper.appendChild(createOrderLine(state.activeTableId, key, item));
+      });
+
+      const actions = document.createElement("div");
+      actions.className = "table-actions";
+      actions.style.marginTop = "10px";
+      actions.innerHTML = `
+        <button class="btn light" type="button" data-action="clear-active">Svuota tavolo</button>
+        <button class="btn danger" type="button" data-action="delete-active">Elimina tavolo</button>
+      `;
+      actions.querySelector('[data-action="clear-active"]').addEventListener("click", () => clearTable(state.activeTableId));
+      actions.querySelector('[data-action="delete-active"]').addEventListener("click", () => deleteTable(state.activeTableId));
+      wrapper.appendChild(actions);
+      box.appendChild(wrapper);
+    }
+
+    function renderTableList() {
+      const list = $("tableList");
+      list.innerHTML = "";
+      const ids = sortedTableIds();
+
+      if (!ids.length) {
+        list.innerHTML = `<div class="empty-state">Nessun tavolo attivo. La giornata è ancora pulita.</div>`;
+        return;
+      }
+
+      ids.forEach(tableId => {
+        const card = document.createElement("div");
+        card.className = "table-card" + (tableId === state.activeTableId ? " active" : "");
+        const count = tableItemCount(tableId);
+        const updated = state.orders[tableId]?.updatedAt ? new Date(state.orders[tableId].updatedAt).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }) : "--:--";
+        card.innerHTML = `
+          <div class="table-card-top">
+            <div>
+              <div class="table-name">Tavolo ${escapeHtml(tableId)}</div>
+              <div class="table-meta">${count} articoli · aggiornato ${updated}</div>
+            </div>
+            <div class="table-total">${euro(tableTotal(tableId))}</div>
+          </div>
+          <div class="table-actions">
+            <button class="btn light" type="button" data-action="open">Apri</button>
+            <button class="btn danger" type="button" data-action="delete">Elimina</button>
+          </div>
+        `;
+        card.querySelector('[data-action="open"]').addEventListener("click", () => selectTable(tableId));
+        card.querySelector('[data-action="delete"]').addEventListener("click", () => deleteTable(tableId));
+        list.appendChild(card);
+      });
+    }
+
+    function createOrderLine(tableId, key, item) {
+      const row = document.createElement("div");
+      row.className = "order-line";
+      row.innerHTML = `
+        <div>
+          <div class="line-name">${escapeHtml(item.name)}</div>
+          <div class="line-sub">${euro(item.price)} cad. · totale ${euro(item.price * item.qty)}</div>
+        </div>
+        <div class="qty-controls">
+          <button class="qty-btn minus" type="button" title="Rimuovi">−</button>
+          <span class="qty-num">${item.qty}</span>
+          <button class="qty-btn plus" type="button" title="Aggiungi">+</button>
+        </div>
+      `;
+      row.querySelector(".minus").addEventListener("click", () => changeQty(tableId, key, -1));
+      row.querySelector(".plus").addEventListener("click", () => changeQty(tableId, key, +1));
+      return row;
+    }
+
+    function selectTable(rawValue) {
+      const id = normalizeTableId(rawValue);
+      if (!id) {
+        showToast("Inserisci un numero tavolo/camera.");
+        return false;
+      }
+      if (!state.orders[id]) {
+        state.orders[id] = { items: {}, createdAt: nowStamp(), updatedAt: nowStamp() };
+      }
+      state.activeTableId = id;
+      showToast(`Tavolo ${id} attivo`);
+      renderAll();
+      return true;
+    }
+
+    function addItemFlow(item) {
+      if (!state.activeTableId) {
+        state.pendingItem = item;
+        openTableModal("Prima scegli tavolo/camera", `Sto per aggiungere: ${item.name}`);
+        return;
+      }
+      addItemToTable(state.activeTableId, item);
+    }
+
+    function addItemToTable(tableId, item) {
+      if (!tableId) return;
+      if (!state.orders[tableId]) {
+        state.orders[tableId] = { items: {}, createdAt: nowStamp(), updatedAt: nowStamp() };
+      }
+      const key = itemKey(item);
+      if (!state.orders[tableId].items[key]) {
+        state.orders[tableId].items[key] = {
+          name: item.name,
+          price: Number(item.price),
+          qty: 0
+        };
+      }
+      state.orders[tableId].items[key].qty += 1;
+      state.orders[tableId].updatedAt = nowStamp();
+      state.activeTableId = tableId;
+      showToast(`${item.name} aggiunto a Tavolo ${tableId}`);
+      renderAll();
+    }
+
+    function changeQty(tableId, key, delta) {
+      const item = state.orders[tableId]?.items[key];
+      if (!item) return;
+      item.qty += delta;
+      if (item.qty <= 0) delete state.orders[tableId].items[key];
+      state.orders[tableId].updatedAt = nowStamp();
+      renderAll();
+    }
+
+    function clearTable(tableId) {
+      if (!tableId || !state.orders[tableId]) return;
+      if (!confirm(`Svuotare il tavolo ${tableId}?`)) return;
+      state.orders[tableId].items = {};
+      state.orders[tableId].updatedAt = nowStamp();
+      renderAll();
+    }
+
+    function deleteTable(tableId) {
+      if (!tableId || !state.orders[tableId]) return;
+      if (!confirm(`Eliminare definitivamente il tavolo ${tableId}?`)) return;
+      delete state.orders[tableId];
+      if (state.activeTableId === tableId) state.activeTableId = null;
+      renderAll();
+    }
+
+    function exportTxt() {
+      const ids = sortedTableIds().filter(id => tableItemCount(id) > 0);
+      if (!ids.length) {
+        alert("Nessun ordine da esportare.");
+        return false;
+      }
+
+      const date = new Date();
+      const datePart = [
+        date.getFullYear(),
+        String(date.getMonth() + 1).padStart(2, "0"),
+        String(date.getDate()).padStart(2, "0")
+      ].join("-");
+      const timePart = [
+        String(date.getHours()).padStart(2, "0"),
+        String(date.getMinutes()).padStart(2, "0")
+      ].join("-");
+
+      let text = `Riepilogo giornaliero ${date.toLocaleDateString("it-IT")} ${date.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })}\n\n`;
+      let grandTotal = 0;
+
+      ids.forEach(tableId => {
+        const total = tableTotal(tableId);
+        grandTotal += total;
+        text += `Tavolo ${tableId}:\n`;
+        Object.values(state.orders[tableId].items)
+          .sort((a, b) => a.name.localeCompare(b.name, "it"))
+          .forEach(item => {
+            text += `  ${item.name} x${item.qty} ${euro(item.price * item.qty)}\n`;
+          });
+        text += `  Totale Tavolo: ${euro(total)}\n\n`;
+      });
+
+      text += `TOTALE GIORNATA: ${euro(grandTotal)}\n`;
+
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `riepilogo_${datePart}_${timePart}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      return true;
+    }
+
+    async function closeDay() {
+      const exported = exportTxt();
+      if (!exported) return;
+      const fx = startSpettacolo();
+      await wait(2200);
+      stopSpettacolo(fx);
+
+      if (confirm("File esportato. Vuoi azzerare tutti i tavoli per iniziare una nuova giornata?")) {
+        state.orders = {};
+        state.activeTableId = null;
+        renderAll();
       }
     }
 
-    // ------------------ Elimina tutti ------------------
-    function eliminaTuttiTavoli() {
-      if (!confirm("Sicuro di voler eliminare tutti i tavoli?")) return;
-      if (!confirm("MA SEI PROPRIO SICURO? NON SI TORNA INDIETRO 😢")) return;
-
-      tavoli = {};
-      tavoloSelezionato = null;
-      statoTavoli = {};
-      salvaDati();
-      renderTavoli();
+    function deleteAll() {
+      if (!Object.keys(state.orders).length) {
+        showToast("Non c'è nulla da eliminare.");
+        return;
+      }
+      if (!confirm("Eliminare tutti i tavoli attivi?")) return;
+      if (!confirm("Conferma brutale: vuoi davvero cancellare tutto senza esportare?")) return;
+      state.orders = {};
+      state.activeTableId = null;
+      renderAll();
     }
 
-    // ------------------ Init ------------------
+    function openTableModal(title, text) {
+      $("tableModalTitle").textContent = title || "Scegli tavolo/camera";
+      $("tableModalText").textContent = text || "Prima scegli dove caricare questo ordine.";
+      $("modalTableInput").value = state.activeTableId || "";
+      renderQuickTables();
+      $("tableModal").classList.add("show");
+      $("tableModal").setAttribute("aria-hidden", "false");
+      setTimeout(() => $("modalTableInput").focus(), 30);
+    }
+
+    function closeTableModal() {
+      $("tableModal").classList.remove("show");
+      $("tableModal").setAttribute("aria-hidden", "true");
+      state.pendingItem = null;
+    }
+
+    function confirmTableModal() {
+      const ok = selectTable($("modalTableInput").value);
+      if (!ok) return;
+      const item = state.pendingItem;
+      $("tableModal").classList.remove("show");
+      $("tableModal").setAttribute("aria-hidden", "true");
+      state.pendingItem = null;
+      if (item) addItemToTable(state.activeTableId, item);
+    }
+
+    function renderQuickTables() {
+      const wrap = $("quickTables");
+      wrap.innerHTML = "";
+      const ids = sortedTableIds();
+      if (!ids.length) return;
+      ids.slice(0, 12).forEach(id => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "quick-table-btn";
+        btn.textContent = `Tavolo ${id}`;
+        btn.addEventListener("click", () => {
+          $("modalTableInput").value = id;
+          confirmTableModal();
+        });
+        wrap.appendChild(btn);
+      });
+    }
+
+    function openCustomModal() {
+      $("customNameInput").value = "";
+      $("customPriceInput").value = "";
+      $("customModal").classList.add("show");
+      $("customModal").setAttribute("aria-hidden", "false");
+      setTimeout(() => $("customNameInput").focus(), 30);
+    }
+
+    function closeCustomModal() {
+      $("customModal").classList.remove("show");
+      $("customModal").setAttribute("aria-hidden", "true");
+    }
+
+    function confirmCustomItem() {
+      const name = $("customNameInput").value.trim();
+      const price = Number($("customPriceInput").value);
+      if (!name || Number.isNaN(price) || price < 0) {
+        alert("Inserisci nome e prezzo validi.");
+        return;
+      }
+      closeCustomModal();
+      addItemFlow({ name, price, description: "Prodotto libero" });
+    }
+
+    function startSpettacolo() {
+      const overlay = $("overlaySpettacolo");
+      const canvas = $("canvasSpettacolo");
+      const ctx = canvas.getContext("2d");
+      overlay.style.display = "block";
+
+      const fx = {
+        running: true,
+        fireworks: [],
+        particles: [],
+        intervalId: null,
+        rafId: null,
+        resize: null
+      };
+
+      fx.resize = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      };
+      fx.resize();
+      window.addEventListener("resize", fx.resize);
+
+      function createFirework() {
+        fx.fireworks.push({
+          x: Math.random() * canvas.width,
+          y: canvas.height + 20,
+          vy: -(Math.random() * 7 + 9),
+          hue: Math.floor(Math.random() * 360)
+        });
+      }
+
+      function explode(x, y, hue) {
+        for (let i = 0; i < 72; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = Math.random() * 5 + 2;
+          fx.particles.push({
+            x, y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            life: 1,
+            fade: Math.random() * 0.025 + 0.012,
+            hue
+          });
+        }
+      }
+
+      function animate() {
+        if (!fx.running) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (let i = fx.fireworks.length - 1; i >= 0; i--) {
+          const f = fx.fireworks[i];
+          f.y += f.vy;
+          f.vy += 0.18;
+          ctx.beginPath();
+          ctx.arc(f.x, f.y, 4, 0, Math.PI * 2);
+          ctx.fillStyle = `hsl(${f.hue}, 90%, 58%)`;
+          ctx.fill();
+          if (f.vy >= 0) {
+            explode(f.x, f.y, f.hue);
+            fx.fireworks.splice(i, 1);
+          }
+        }
+
+        for (let i = fx.particles.length - 1; i >= 0; i--) {
+          const p = fx.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.06;
+          p.life -= p.fade;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 2.2, 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(${p.hue}, 90%, 62%, ${p.life})`;
+          ctx.fill();
+          if (p.life <= 0) fx.particles.splice(i, 1);
+        }
+
+        fx.rafId = requestAnimationFrame(animate);
+      }
+
+      fx.intervalId = setInterval(createFirework, 220);
+      createFirework();
+      createFirework();
+      fx.rafId = requestAnimationFrame(animate);
+      return fx;
+    }
+
+    function stopSpettacolo(fx) {
+      const overlay = $("overlaySpettacolo");
+      const canvas = $("canvasSpettacolo");
+      const ctx = canvas.getContext("2d");
+      if (fx) {
+        fx.running = false;
+        clearInterval(fx.intervalId);
+        cancelAnimationFrame(fx.rafId);
+        window.removeEventListener("resize", fx.resize);
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      overlay.style.display = "none";
+    }
+
+    function wait(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function bindEvents() {
+      $("searchInput").addEventListener("input", renderProducts);
+      $("customItemBtn").addEventListener("click", openCustomModal);
+      $("selectTableBtn").addEventListener("click", () => selectTable($("tableInput").value));
+      $("tableInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") selectTable($("tableInput").value);
+      });
+      $("changeTableBtn").addEventListener("click", () => openTableModal("Cambia tavolo/camera", "Scegli un tavolo esistente o aprine uno nuovo."));
+      $("activeTableChip").addEventListener("click", () => openTableModal("Cambia tavolo/camera", "Scegli un tavolo esistente o aprine uno nuovo."));
+      $("cancelTableModalBtn").addEventListener("click", closeTableModal);
+      $("confirmTableModalBtn").addEventListener("click", confirmTableModal);
+      $("modalTableInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") confirmTableModal();
+        if (e.key === "Escape") closeTableModal();
+      });
+      $("tableModal").addEventListener("click", (e) => {
+        if (e.target === $("tableModal")) closeTableModal();
+      });
+      $("cancelCustomBtn").addEventListener("click", closeCustomModal);
+      $("confirmCustomBtn").addEventListener("click", confirmCustomItem);
+      $("customPriceInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") confirmCustomItem();
+      });
+      $("customModal").addEventListener("click", (e) => {
+        if (e.target === $("customModal")) closeCustomModal();
+      });
+      $("closeDayBtn").addEventListener("click", closeDay);
+      $("deleteAllBtn").addEventListener("click", deleteAll);
+    }
+
     function init() {
-      caricaDati();
-
-      buildMenu();
-      initCategoryToggle();
-      initProductClicks();
-
-      document.getElementById("btnApriTavolo").addEventListener("click", selezionaTavolo);
-      document.getElementById("btnAltroAggiungi").addEventListener("click", aggiungiProdottoAltro);
-      document.getElementById("btnChiusura").addEventListener("click", chiusuraGiornalieraConSpettacolo);
-      document.getElementById("btnEliminaTutti").addEventListener("click", eliminaTuttiTavoli);
-
-      renderTavoli();
+      loadState();
+      ensureInitialMenu();
+      bindEvents();
+      renderAll();
     }
 
     init();
